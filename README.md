@@ -39,3 +39,16 @@ Aeon_MicroVault_v1.9.html
 Aeon Secure Suite and MicroVault were conceived and created by **Steven Politowicz**.
 
 Much of the implementation and wording was co-developed with the help of a large language model (LLM) assistant. All cryptography uses standard browser APIs (Web Crypto), and the code is shipped as a single, auditable HTML file so that anyone can inspect, verify, or fork it.
+
+## Safety & limitations
+
+- If you lose your passphrase, vault, or the HTML file, your encrypted data cannot be recovered.
+- These tools do **not** protect you from malware, keyloggers, or a compromised operating system or browser.
+- Going offline (air-gapped) helps, but it does not fix an already infected or monitored device.
+- Use strong, unique passphrases and avoid storing life-or-death secrets here without expert review of your full setup.
+
+## Bugs & security issues
+
+If you find a bug, UX issue, or have questions, please open a GitHub Issue on this repository.
+
+If you believe you’ve found a security problem, avoid sharing real private data in screenshots or examples. Describe what you did, what you expected, and what happened instead so the issue can be investigated and fixed.
