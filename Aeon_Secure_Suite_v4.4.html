@@ -1,0 +1,4982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aeon Secure Suite – Offline Message, File & Vault Tools</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050510;
+      --bg-alt: #0c0c18;
+      --card-bg: #121222;
+      --card-border: #272742;
+      --accent: #6cf3ff;
+      --accent-soft: rgba(108, 243, 255, 0.14);
+      --accent-strong: #ff7bd4;
+      --text-main: #f5f5ff;
+      --text-muted: #a0a4c0;
+      --danger: #ff5577;
+      --success: #5df2a8;
+      --warning: #ffd36f;
+      --radius-lg: 18px;
+      --radius-sm: 10px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.7);
+      --shadow-subtle: 0 0 0 1px rgba(255, 255, 255, 0.03);
+      --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, "Consolas",
+        "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #12122a 0, #03030a 38%, #000 100%);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2.2rem 1.4rem 3rem;
+      overflow-y: auto;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1180px;
+      border-radius: 28px;
+      padding: 1px;
+      background:
+        radial-gradient(circle at top left, rgba(108, 243, 255, 0.4), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(255, 123, 212, 0.4), transparent 55%),
+        linear-gradient(135deg, #1a1a34, #050512);
+      box-shadow: 0 26px 60px rgba(0, 0, 0, 0.85);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell-inner {
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at top, rgba(108, 243, 255, 0.14), rgba(1, 1, 8, 0.98)),
+        linear-gradient(145deg, rgba(10, 10, 25, 0.96), rgba(3, 3, 12, 0.98));
+      padding: 1.6rem 1.7rem 2.2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shell-inner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(108, 243, 255, 0.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(255, 123, 212, 0.1), transparent 60%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .shell-inner > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.9rem 1.5rem;
+      align-items: flex-start;
+      margin-bottom: 1.4rem;
+    }
+
+    .title-block h1 {
+      margin: 0 0 0.3rem;
+      font-size: 1.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .title-block h1 span.logo-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 15%, #ffffff, #6cf3ff 32%, #1488ff 80%);
+      box-shadow: 0 0 16px rgba(108, 243, 255, 0.8);
+    }
+
+    .title-block p {
+      margin: 0 0 0.3rem;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      max-width: 520px;
+    }
+
+    .title-block p strong {
+      color: #f5f5ff;
+    }
+
+    .title-block .micro {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(137, 169, 255, 0.8);
+      background: rgba(7, 11, 22, 0.96);
+      color: var(--text-muted);
+    }
+
+    .badge span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 15%, #ffffff, var(--accent) 40%, #1488ff 85%);
+      box-shadow: 0 0 10px rgba(108, 243, 255, 0.8);
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .section-title {
+      margin: 0 0 0.5rem;
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title span {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 15%, #ffffff, #6cf3ff 40%, #1488ff 90%);
+      box-shadow: 0 0 12px rgba(108, 243, 255, 0.7);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid.two {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    @media (max-width: 980px) {
+      .grid.two {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.03), rgba(3, 3, 12, 0.98));
+      border: 1px solid rgba(124, 144, 255, 0.35);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(108, 243, 255, 0.14), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(255, 123, 212, 0.14), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+      padding: 1.1rem 1rem 1.1rem;
+    }
+
+    .card-header {
+      margin-bottom: 0.7rem;
+    }
+
+    .card-header h2 {
+      margin: 0 0 0.2rem;
+      font-size: 1.04rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f0f4ff;
+    }
+
+    .card-header small {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .field-group {
+      margin-bottom: 0.55rem;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 0.18rem;
+      color: #d8ddff;
+    }
+
+    .field-group small.hint {
+      display: block;
+      margin-top: 0.16rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    
+    .pw-strength-meter {
+      margin-top: 0.18rem;
+      height: 0.32rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .pw-strength-meter-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.18s ease;
+    }
+
+    .pw-strength-weak .pw-strength-meter-fill {
+      width: 33%;
+      background: var(--danger);
+    }
+
+    .pw-strength-medium .pw-strength-meter-fill {
+      width: 66%;
+      background: var(--warning);
+    }
+
+    .pw-strength-strong .pw-strength-meter-fill {
+      width: 100%;
+      background: var(--success);
+    }
+
+input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(151, 173, 255, 0.5);
+      background: radial-gradient(circle at top left, rgba(108, 243, 255, 0.1), rgba(3, 3, 12, 0.96));
+      color: var(--text-main);
+      padding: 0.4rem 0.5rem;
+      font-size: 0.82rem;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+      outline: none;
+      font-family: inherit;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      font-size: 0.78rem;
+      color: var(--text-main);
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow:
+        0 0 0 1px rgba(108, 243, 255, 0.5),
+        0 0 20px rgba(108, 243, 255, 0.3);
+      background: radial-gradient(circle at top left, rgba(108, 243, 255, 0.16), rgba(2, 2, 12, 0.98));
+    }
+
+    textarea {
+      position: relative;
+      resize: vertical;
+      min-height: 70px;
+      max-height: 220px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
+    textarea::after {
+      content: "↘";
+      position: absolute;
+      bottom: 4px;
+      right: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      opacity: 0.75;
+      pointer-events: none;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.2rem;
+    }
+
+    button {
+      border-radius: 999px;
+      border: 1px solid rgba(137, 169, 255, 0.7);
+      background: radial-gradient(circle at top, rgba(108, 243, 255, 0.22), rgba(3, 3, 16, 0.98));
+      color: var(--text-main);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+      transition:
+        background 0.12s ease,
+        transform 0.06s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease;
+    }
+
+    button.primary {
+      border-color: rgba(108, 243, 255, 0.9);
+      background: linear-gradient(135deg, #6cf3ff, #9d7bff);
+      color: #050512;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    button.ghost {
+      background: rgba(7, 11, 24, 0.96);
+      border-color: rgba(137, 169, 255, 0.5);
+      color: var(--text-main);
+    }
+
+    button.danger {
+      border-color: rgba(255, 85, 119, 0.85);
+      background: radial-gradient(circle at top, rgba(255, 85, 119, 0.24), rgba(30, 5, 15, 0.96));
+      color: #ffeef3;
+    }
+
+    button:hover {
+      transform: translateY(-0.5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.8);
+      border-color: var(--accent);
+    }
+
+    button.primary:hover {
+      background: linear-gradient(135deg, #7ff8ff, #b28bff);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7);
+    }
+
+    .note-inline {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+    .status-line {
+      margin-top: 0.3rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      min-height: 0.9rem;
+    }
+
+
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+    }
+
+    .danger-text {
+      color: var(--danger);
+    }
+
+    .success-text {
+      color: var(--success);
+    }
+
+    .warning-text {
+      color: var(--warning);
+    }
+    .warning-banner {
+      margin: 0.55rem 0;
+      padding: 0.45rem 0.6rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 211, 111, 0.6);
+      background: radial-gradient(circle at top, rgba(255, 211, 111, 0.12), rgba(20, 12, 0, 0.9));
+      color: var(--warning);
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+
+
+    .divider {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba(136, 159, 255, 0.6),
+        rgba(108, 243, 255, 0.4),
+        transparent
+      );
+      margin: 1rem 0 0.4rem;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.7rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-row strong {
+      color: #dfe4ff;
+    }
+
+    /* Collapsible tool panels */
+    .tool-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    details.tool-panel {
+      border-radius: 16px;
+      border: 1px solid rgba(120, 145, 255, 0.5);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.02), rgba(5, 5, 18, 0.98));
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+    }
+
+    details.tool-panel[open] {
+      border-color: rgba(108, 243, 255, 0.85);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
+    }
+
+    details.tool-panel summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 0.7rem 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      font-size: 0.86rem;
+      color: var(--text-main);
+    }
+
+    details.tool-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .tool-summary-main {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .tool-summary-title {
+      font-size: 0.86rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .tool-summary-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .tool-summary-pill {
+      font-size: 0.72rem;
+      padding: 0.16rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(108, 243, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .tool-body {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.8rem 0.8rem 0.9rem;
+    }
+
+    /* Lock / Unlock blocks */
+    .tool-block {
+      border-radius: 12px;
+      padding: 0.7rem 0.65rem 0.75rem;
+      border: 1px solid rgba(148, 199, 255, 0.45);
+      background: radial-gradient(circle at top, rgba(108, 243, 255, 0.10), rgba(3, 3, 14, 0.98));
+      margin-bottom: 0.55rem;
+    }
+
+    .tool-block.tool-unlock {
+      background: radial-gradient(circle at top, rgba(255, 123, 212, 0.10), rgba(3, 3, 14, 0.98));
+      border-color: rgba(255, 170, 238, 0.45);
+    }
+
+    .tool-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .tool-block-header h3 {
+      margin: 0;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f2f3ff;
+    }
+
+    .step-chip {
+      font-size: 0.68rem;
+      padding: 0.08rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(108, 243, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      background: rgba(3, 7, 20, 0.96);
+      white-space: nowrap;
+    }
+
+    .tool-divider-note {
+      margin: 0.3rem 0 0.5rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Password row */
+    .password-row {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .password-row input[type="password"],
+    .password-row input[type="text"] {
+      flex: 1;
+    }
+
+    .password-toggle {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.55rem;
+    }
+
+    /* Vault UI */
+    .vault-status {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 0.35rem 0.55rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(108, 243, 255, 0.06), rgba(0, 0, 0, 0.55));
+      border: 1px solid rgba(108, 243, 255, 0.28);
+      margin-bottom: 0.35rem;
+    }
+
+    .vault-entries {
+      max-height: 160px;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.03), rgba(5, 5, 18, 0.96));
+      padding: 0.35rem 0.45rem;
+    }
+
+    .vault-entry-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.22rem 0.3rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.78rem;
+    }
+
+    .vault-entry-row:last-child {
+      border-bottom: none;
+    }
+
+    .vault-entry-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .vault-entry-title {
+      font-weight: 500;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .vault-entry-meta {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+
+    .vault-entry-actions {
+      display: flex;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .vault-entry-actions button {
+      font-size: 0.7rem;
+      padding: 0.18rem 0.5rem;
+    }
+
+    .vault-preview {
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.03), rgba(5, 5, 18, 0.96));
+      padding: 0.45rem;
+    }
+
+    .vault-preview-title {
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: var(--text-main);
+    }
+
+    .vault-preview-body {
+      width: 100%;
+      min-height: 60px;
+      max-height: 140px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(2, 2, 12, 0.96);
+      color: var(--text-main);
+      font-size: 0.78rem;
+      resize: vertical;
+    }
+
+    /* Advanced panel (KDF) */
+    .kdf-panel {
+      padding: 0.75rem 0.8rem;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 199, 255, 0.4);
+      background: radial-gradient(circle at top, rgba(108, 243, 255, 0.14), rgba(7, 7, 22, 0.96));
+      box-shadow: var(--shadow-subtle);
+      font-size: 0.8rem;
+    }
+
+    .kdf-panel h3 {
+      margin: 0 0 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.76rem;
+      color: #e3e7ff;
+    }
+
+    .kdf-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.15rem;
+    }
+
+    .kdf-row label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+    }
+
+    .kdf-row input[type="number"] {
+      width: 90px;
+    }
+
+    .kdf-presets {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+
+    .kdf-presets button {
+      font-size: 0.72rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(108, 243, 255, 0.6);
+      background: rgba(8, 18, 30, 0.9);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.05s ease;
+    }
+
+    .kdf-presets button:hover {
+      background: rgba(108, 243, 255, 0.16);
+      transform: translateY(-0.5px);
+    }
+
+    .kdf-note {
+      margin-top: 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 1.2rem 0.8rem 1.8rem;
+      }
+      .shell-inner {
+        padding: 1.3rem 1rem 1.7rem;
+      }
+      header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  
+  .aeon-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .aeon-logo-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .aeon-logo-orbit {
+    fill: none;
+    stroke: #6ee7ff;
+    stroke-width: 2;
+    opacity: 0.9;
+  }
+
+  .aeon-logo-core {
+    fill: #22d3ee;
+    opacity: 0.9;
+  }
+
+  .aeon-logo-arc {
+    fill: rgba(56, 189, 248, 0.12);
+  }
+
+  .aeon-logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .aeon-logo-word {
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+  }
+
+  .aeon-logo-tagline {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 640px) {
+    .aeon-logo {
+      gap: 0.6rem;
+    }
+    .aeon-logo-icon {
+      width: 36px;
+      height: 36px;
+    }
+    .aeon-logo-word {
+      font-size: 0.9rem;
+    }
+    .aeon-logo-tagline {
+      font-size: 0.75rem;
+    }
+  }
+
+    /* Aeon Capsule (Encrypted file capsule) – scoped styles */
+    #microvaultRoot .note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    #microvaultRoot .status {
+      font-size: 0.78rem;
+      margin-top: 0.25rem;
+      min-height: 1rem;
+      color: var(--text-muted);
+    }
+
+    #microvaultRoot .status.ok {
+      color: var(--success);
+    }
+
+    #microvaultRoot .status.error {
+      color: var(--danger);
+    }
+
+    #microvaultRoot .drop-zone {
+      margin-top: 0.35rem;
+      padding: 0.5rem 0.6rem;
+      border-radius: 10px;
+      border: 1px dashed rgba(148, 199, 255, 0.6);
+      background: radial-gradient(
+        circle at top,
+        rgba(108, 243, 255, 0.06),
+        rgba(5, 5, 18, 0.96)
+      );
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    #microvaultRoot .drop-zone.drag-over {
+      border-style: solid;
+      box-shadow:
+        0 0 0 1px rgba(108, 243, 255, 0.7),
+        0 0 20px rgba(108, 243, 255, 0.3);
+    }
+
+    /*
+      Additional drop zone styles for Wormhole and Vault.
+      These mimic the MicroVault styling but apply to the new drop targets used
+      for the single-file Wormhole and Vault notebook tools. The `.drag-over`
+      class highlights the zone while a file is being dragged over it.
+    */
+    #wormDrop,
+    #vaultLoadDrop,
+    #vaultImportDrop {
+      margin-top: 0.35rem;
+      padding: 0.5rem 0.6rem;
+      border-radius: 10px;
+      border: 1px dashed rgba(148, 199, 255, 0.6);
+      background: radial-gradient(
+        circle at top,
+        rgba(108, 243, 255, 0.06),
+        rgba(5, 5, 18, 0.96)
+      );
+      font-size: 0.8rem;
+      text-align: left;
+      color: var(--text-muted);
+    }
+
+    #wormDrop.drag-over,
+    #vaultLoadDrop.drag-over,
+    #vaultImportDrop.drag-over {
+      border-style: solid;
+      box-shadow:
+        0 0 0 1px rgba(108, 243, 255, 0.7),
+        0 0 20px rgba(108, 243, 255, 0.3);
+    }
+
+    #microvaultRoot .file-list {
+      margin-top: 0.35rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: radial-gradient(
+        circle at top,
+        rgba(255, 255, 255, 0.03),
+        rgba(5, 5, 18, 0.96)
+      );
+      max-height: 150px;
+      overflow-y: auto;
+      padding: 0.3rem 0.4rem;
+    }
+
+    #microvaultRoot .file-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.22rem 0.3rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.78rem;
+    }
+
+    #microvaultRoot .file-row:last-child {
+      border-bottom: none;
+    }
+
+    #microvaultRoot .file-name {
+      font-weight: 500;
+      color: var(--text-main);
+      word-break: break-all;
+    }
+
+    #microvaultRoot .file-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    #microvaultRoot .file-actions button {
+      font-size: 0.72rem;
+      padding: 0.18rem 0.6rem;
+    }
+
+    #microvaultRoot .pass-row {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    #microvaultRoot .pass-row input[type="password"],
+    #microvaultRoot .pass-row input[type="text"] {
+      flex: 1;
+    }
+
+    #microvaultRoot .pass-toggle {
+      flex-shrink: 0;
+      font-size: 0.72rem;
+      padding: 0.22rem 0.75rem;
+    }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="shell-inner">
+      <header>
+        <div class="title-block">
+          <div class="aeon-logo">
+            <svg class="aeon-logo-icon" viewBox="0 0 64 64" aria-hidden="true">
+              <!-- Outer orbit ring -->
+              <circle cx="32" cy="32" r="23" class="aeon-logo-orbit" />
+              <!-- Inner core -->
+              <circle cx="32" cy="32" r="11" class="aeon-logo-core" />
+              <!-- Arc / path suggesting a wormhole / timeline -->
+              <path class="aeon-logo-arc"
+                    d="M16 36
+                       Q32 18 48 28
+                       Q40 40 24 44
+                       Z" />
+            </svg>
+            <div class="aeon-logo-text">
+             <div class="aeon-logo-word">AEON · PROJECT WORMHOLE</div>
+              <div class="aeon-logo-tagline">secure suite · offline tools</div>
+            </div>
+          </div>
+          <p>
+            Aeon is a single offline HTML file that lets you lock messages,
+            files, and a small vault using nothing but your browser and modern cryptography.
+            No app, no account, no cloud.
+          </p>
+          <div class="micro">
+            This page runs locally in your browser. If you unplug the network or switch to airplane mode,
+            Aeon still works exactly the same. Your data never leaves this device unless <strong>you</strong>
+            save or share the locked files yourself.
+          </div>
+        </div>
+        <div class="badge">
+          <span class="dot"></span>
+          Offline-only · One HTML file · Just math
+        </div>
+      </header>
+
+      <main>
+        <!-- Getting oriented -->
+        <h2 class="section-title"><span>◆</span>Getting oriented</h2>
+<section class="card">
+  <div class="card-inner">
+    <div class="card-header">
+      <h2>ABOUT AEON SECURE SUITE</h2>
+      <small>
+        What this file is, what it isn’t, and where it fits.<br>
+        <strong>OFFLINE · HUMAN-SCALE</strong>
+      </small>
+    </div>
+
+    <p><strong>What this file is</strong></p>
+    <p class="note-inline">
+      This is a single, self-contained HTML file that gives you a small toolbox for encrypting messages,
+      locking files into JSON “Wormholes,” generating strong passphrases, checking file integrity,
+      and managing a simple encrypted vault. Everything runs locally on your device using your browser’s
+      built-in cryptography.
+    </p>
+
+    <p><strong>What this file is not</strong></p>
+    <p class="note-inline">
+      Aeon is not a cloud service, not an account system, and not a way for anyone else to recover your data.
+      There are no servers, no hidden network calls, and no password reset. If you lose a passphrase,
+      the data encrypted with it is gone.
+    </p>
+
+    <p><strong>How “offline only” actually works</strong></p>
+    <p class="note-inline">
+      Aeon is just math inside your browser:
+      <br>• No data is sent anywhere by this page.
+      <br>• You can use it completely offline (<code>file://</code> on a trusted device).
+      <br>• You can copy this file to a USB stick, air-gapped laptop, or secure room and it still works.
+      <br>• It behaves the same online, behind a VPN, or in airplane mode on your phone.
+      <br>• When you close the page, decrypted data in memory is gone.
+    </p>
+
+    <p><strong>Where Aeon is useful in the real world</strong></p>
+    <p class="note-inline">
+      Aeon isn’t a toy – it’s built to solve real problems while staying fully offline:
+      <br><br><strong>Field work in risky places</strong>
+      <br>Journalists, activists, and human rights workers can lock notes or files on any laptop or desktop computer
+      and move only the encrypted JSON via USB, or SD card. No app installs, no cloud trail.
+      <br><br><strong>Sensitive documents in legal or corporate work</strong>
+      <br>Lawyers, consultants, and auditors can keep case files, reports, and notes local-only,
+      using Vault for text, Wormhole for single files, and Aeon Capsule for file bundles – with clear passphrase rules and no hidden network use.
+      <br><br><strong>Teaching and training crypto</strong>
+      <br>Teachers and security trainers can use Aeon as a hands-on demo for encryption, hashing,
+      and file integrity checks – all visible, all client-side.
+      <br><br><strong>Private hand-off for clients and freelancers</strong>
+      <br>Creators and freelancers can lock drafts or media, send the envelope by email, and let clients
+      unlock using this single HTML file and a shared passphrase. No accounts, no services to trust.
+      <br><br><strong>Personal privacy toolkit</strong>
+      <br>Everyday people can lock diaries, scans, backups, or small “life admin” documents, all without
+      setting up accounts or learning complex tools.
+      <br><br><strong>Regulated or no-cloud environments</strong>
+      <br>Teams working in “no cloud” zones or air-gapped rooms can still protect data at rest and in transit.
+      Aeon never phones home and is easy to audit by reading the source.
+    </p>
+
+    <p><strong>What “Project Wormhole” means</strong></p>
+    <p class="note-inline">
+      “Project Wormhole” is the name for Aeon’s file-locking path — the Wormhole tool below that turns any file
+      into an encrypted envelope you can move or store safely.
+    </p>
+
+    <div class="divider" style="margin-top:0.9rem;margin-bottom:0.7rem;"></div>
+
+    </div>
+</section>
+<section class="tool-stack">
+  <details class="tool-panel">
+    <summary>
+      <div class="tool-summary-main">
+        <div class="tool-summary-title">Quick start &amp; threat model</div>
+        <div class="tool-summary-sub">Plain-language steps and what Aeon is built to protect.</div>
+      </div>
+      <div class="tool-summary-pill">Guide</div>
+    </summary>
+    <div class="tool-body">
+      <div class="card">
+        <div class="card-inner">
+<div class="card-header">
+      <h2>Quick start & threat model</h2>
+      <small>Plain-language steps and what Aeon is designed to protect against.</small>
+    </div>
+
+    <p><strong>Quick start: how to use Aeon in 5 steps</strong></p>
+    <p class="note-inline">
+      <strong>1. Lock a message</strong><br>
+      • Open <strong>Secure Message</strong> below.<br>
+      • Type your message and choose a passphrase.<br>
+      • Click <strong>“Lock message”</strong> and save or download the JSON.
+      <br><br><strong>2. Unlock that message</strong><br>
+      • Paste the JSON back into Secure Message.<br>
+      • Enter the same passphrase and click <strong>“Unlock message”</strong>.<br>
+      • The original text appears.
+      <br><br><strong>3. Lock a file</strong><br>
+      • Open <strong>Wormhole</strong>.<br>
+      • Select a file and choose a passphrase.<br>
+      • Click <strong>“Lock file”</strong> and download the JSON envelope.
+      <br><br><strong>4. Unlock a file</strong><br>
+      • In Wormhole, load that JSON envelope.<br>
+      • Enter the same passphrase and click <strong>“Unlock file”</strong>.<br>
+      • Your browser downloads the original file (or a generic name if you scrubbed it).
+      <br><br><strong>5. Use Vault &amp; Aeon Capsule</strong><br>
+      • Open <strong>Vault</strong> for notes and text/JSON entries, or <strong>Aeon Capsule</strong> for photos and documents.<br>
+      • In Vault, set one master passphrase and add entries by typing or importing JSON files, then save the vault as a locked file.<br>
+      • In Aeon Capsule, add one or more files, choose a passphrase, and lock them into a single encrypted capsule file.
+    </p>
+
+    <p><strong>What Aeon is good at</strong></p>
+    <p class="note-inline">
+      • Someone finds your laptop, USB stick, or synced folder with only locked JSON / vault files.<br>
+      • Curious insiders or housemates who see the envelopes but don’t know the passphrase.<br>
+      • Future you, as long as you still have the file and remember the passphrase.
+    </p>
+
+    <p><strong>What Aeon is not designed for</strong></p>
+    <p class="note-inline">
+      • Malware or keyloggers on this device capturing your keystrokes.<br>
+      • Someone watching you type your passphrase.<br>
+      • Coercion or social pressure to reveal your passphrase.<br>
+      • Cloud backups or sync tools you turned on outside of Aeon.
+    </p>
+
+    <p><strong>About browser password managers &amp; sync</strong></p>
+    <p class="note-inline">
+      Modern browsers and password managers may offer to save the passphrases you type here and then sync
+      them to the cloud or other devices. If you want Aeon to stay truly local-only, consider turning off
+      “save password” prompts for this page or using a browser/profile where sync is disabled for these
+      passphrases.
+    </p>
+
+    <p><strong>Checking you have the real Aeon file</strong></p>
+    <p class="note-inline">
+      Aeon is just a single HTML file. The <strong>File Integrity Check</strong> tool gives you a fingerprint
+      (a long SHA‑256 string) for any file you point it at. If two copies of a file give the same fingerprint,
+      they are effectively the same file; if the fingerprints differ, something about the file has changed.
+      <br><br><strong>To check this Aeon file:</strong>
+      <br>1) Scroll down to the File Integrity Check tool.
+      <br>2) Choose this Aeon HTML file itself and click “Compute fingerprint.”
+      <br>3) Compare the result to either a trusted reference hash the creator has published, or to a
+      fingerprint you saved earlier from a “known good” copy on your own drive.
+      <br>If the fingerprints match, you’re using the same Aeon file. If they don’t, treat the new copy
+      with caution.
+    </p>
+
+    <p><strong>Security, honestly</strong></p>
+    <p class="note-inline">
+      Aeon uses strong, modern encryption locally. If your device is clean and your passphrase is strong
+      and secret, guessing through the encryption in practice is designed to be extremely hard.
+      Nothing is “un-hackable,” but Aeon does not hide how it works or pretend to be magic.
+    </p>
+
+    <p class="note-inline">
+      Using 8–10 random words from the default list, plus PBKDF2, is already very strong for Aeon’s intended use. In practice, a simple, truly random multi‑word phrase is safer than a “fancy” passphrase built from patterns or reused ideas.
+    </p>
+    <p><strong>Your browser environment still matters</strong></p>
+    <p class="note-inline">
+      Aeon can only be as safe as the device and browser it runs on. It cannot defend against malware, keyloggers,
+      screen recorders, or browser extensions that are already spying on you. For sensitive work, prefer a clean,
+      trusted device; use a private/incognito window; and consider turning off or removing browser extensions
+      that you do not absolutely need while using Aeon.
+    </p>
+
+
+    
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="tool-panel">
+    <summary>
+      <div class="tool-summary-main">
+        <div class="tool-summary-title">Creator, origin &amp; support</div>
+        <div class="tool-summary-sub">Who made Aeon, why it exists, and optional tipping.</div>
+      </div>
+      <div class="tool-summary-pill">About</div>
+    </summary>
+    <div class="tool-body">
+      <div class="card">
+        <div class="card-inner">
+<p><strong>Creator, origin &amp; support</strong></p>
+    <p class="note-inline">
+      Aeon Secure Suite was created in 2025 by <strong>Steven Politowicz</strong> as part of
+      <strong>Project Aeon</strong> — an effort to rebuild trust between humans and technology through
+      transparent, offline tools.<br><br>
+      You are welcome to copy and share this file for personal and non‑commercial use, as long as you keep
+      the Aeon name and creator credit visible.<br><br>
+      Aeon is offered as a free, open‑source project. If this tool helps you and you would like to see continued development, please consider leaving a tip:<br><br>
+      <strong>Venmo:</strong> <code>@underthecity</code>
+      <br><br>
+      Contributions are optional but help cover the costs of infrastructure, AI services and future enhancements.
+    </p>
+  
+        </div>
+      </div>
+    </div>
+  </details>
+<!-- MIT License (moved to Getting oriented) -->
+<details class="tool-panel">
+  <summary>
+    <div class="tool-summary-main">
+      <div class="tool-summary-title">MIT License</div>
+      <div class="tool-summary-sub">Full license text</div>
+    </div>
+    <div class="tool-summary-pill">Legal</div>
+  </summary>
+  <div class="tool-body">
+    <div class="card">
+      <div class="card-inner">
+        <pre class="mono" style="white-space: pre-wrap;">
+MIT License
+
+Copyright (c) 2025 Steven Politowicz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the \"Software\"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+        </pre>
+      </div>
+    </div>
+  </div>
+</details>
+<details class="tool-panel">
+          <summary>
+            <div class="tool-summary-main">
+              <div class="tool-summary-title">Security &amp; Release Notes</div>
+              <div class="tool-summary-sub">Audit guidelines, version history, and limitations.</div>
+            </div>
+            <div class="tool-summary-pill">Info</div>
+          </summary>
+          <div class="tool-body">
+            <div class="card">
+              <div class="card-inner">
+                <p><strong>Security guidelines</strong></p>
+                <p class="note-inline">
+                  This page runs entirely client-side. To verify the integrity of your copy, use the File Integrity Check tool to compute the SHA-256 fingerprint of this HTML file and compare it with trusted reference hashes. It is strongly recommended to have this code reviewed by an independent security professional before relying on it in high-risk environments.
+                </p>
+                
+                <p><strong>Cryptography under the hood</strong></p>
+                <p class="note-inline">
+                  &bull; Cipher: AES-256-GCM via the browser&apos;s Web Crypto API (<code>crypto.subtle</code>).<br>
+                  &bull; Key derivation: PBKDF2-HMAC-SHA-256 with a fresh 16&nbsp;byte random salt per lock operation.<br>
+                  &bull; Iterations: Default <code>300,000</code> PBKDF2 rounds (configurable), with a minimum enforced floor of <code>100,000</code> iterations.<br>
+                  &bull; IV / nonce: 96-bit (12&nbsp;byte) random IV generated via <code>crypto.getRandomValues</code> for each encryption.<br>
+                  &bull; AAD (Additional Authenticated Data): When you supply context/AAD in Secure Message, it is bound into the authentication tag so ciphertext cannot be reused safely without the same context.<br>
+                  &bull; Randomness: All salts, IVs and keys are generated using <code>crypto.getRandomValues</code>; no custom PRNGs or <code>Math.random()</code> are used for cryptographic material.<br>
+                  &bull; Libraries: No external cryptography libraries or CDNs are loaded; all crypto is implemented through the native Web Crypto API in your browser.
+                </p>
+
+<p><strong>Release fingerprint &amp; verification</strong></p>
+                <p class="note-inline">
+                  Each published Aeon Secure Suite release should have an official SHA‑256 fingerprint listed wherever you downloaded this file (for example, in the README or release notes).
+                  <br><br>To verify your copy:
+                  <br>1) Use the <strong>File Integrity Check</strong> tool on this HTML file itself.
+                  <br>2) Compare the SHA‑256 value shown there to the official fingerprint for this version.
+                  <br><br>If they match, you are using the same file that was published. If they differ, treat that copy as untrusted until you can obtain a clean one.
+                </p>
+<p><strong>Version history</strong></p>
+                <p class="note-inline">
+                  <strong>v4.4</strong> &ndash; Refined file size guidance and safety prompts for large files; added visual passphrase strength meters across tools; documented environment and browser/extension caveats; added a “Cryptography under the hood” section and release fingerprint guidance; and moved Security &amp; Release Notes under Getting oriented for easier auditing.<br>
+                  <strong>v4.3</strong> &ndash; Added pre‑encryption file size warnings with a confirmation prompt; unified passphrase strength hints across all tools including the Vault and MicroVault; improved the global Nuke function to also clear MicroVault state; inserted a dedicated MIT License section and a visible Support panel highlighting donation links; and refined progress indicators and browser compatibility checks introduced in v4.2.<br>
+                  <strong>v4.2</strong> &ndash; Added drag &amp; drop for Wormhole and Vault; multi-batch file selection; improved status messages and progress feedback for large file operations; browser feature detection; ability to copy all vault entries as JSON; added the Security &amp; Release Notes section; included the full MIT license text; and other minor improvements.<br>
+                  <strong>v4.1</strong> &ndash; Initial public release with Secure Message, Wormhole, Vault and File Integrity Check.<br>
+                  <strong>v3.9</strong> &ndash; Initial public release with Secure Message, Wormhole, Vault and File Integrity Check.
+                </p>
+                <p><strong>Known limitations</strong></p>
+                <p class="note-inline">
+                  • Large files may consume significant memory and cause browser instability. For best results, keep individual files under 50–100&nbsp;MB and vault sizes under ~25&nbsp;MB.<br>
+                  • No recovery: if you lose or forget your passphrase, the data cannot be recovered. Write it down or store it securely.<br>
+                  • Browser extensions or malicious plug-ins may still compromise your secrets. Use Aeon on a clean, trusted device.
+                </p>
+                <p><strong>Contact &amp; license</strong></p>
+                <p class="note-inline">
+                  Report issues or feedback to the Aeon project maintainers via the channels listed on the project page. This project is released under the MIT License.
+                </p>
+              </div>
+            </div>
+          </div>
+        </details>
+</section>
+
+
+        <!-- Core tools -->
+        <h2 class="section-title"><span>◆</span>Core tools</h2>
+        <div class="warning-banner pwReuseWarning" style="display:none;">
+          <strong>Passphrase reuse detected.</strong> The same passphrase appears in more than one tool
+          (Secure Message, Wormhole, Vault, Aeon Capsule). For better separation of risk, consider using different
+          passphrases for different purposes.
+        </div>
+        <section class="tool-stack">
+          <!-- Secure Message -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">Secure Message</div>
+                <div class="tool-summary-sub">Lock / unlock short text or JSON with a passphrase.</div>
+              </div>
+              <div class="tool-summary-pill">Message</div>
+            </summary>
+            <div class="tool-body">
+              <div class="card">
+                <div class="card-inner">
+                  <!-- Lock block -->
+                  <div class="tool-block tool-lock">
+                    <div class="tool-block-header">
+                      <h3>Lock a new message</h3>
+                      <div class="step-chip">Step 1 · Lock</div>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="msgType">Message content type</label>
+                      <select id="msgType">
+                        <option value="text/plain">Plain text (normal writing)</option>
+                        <option value="application/json">JSON (structured data)</option>
+                      </select>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="plainText">Message to lock</label>
+                      <textarea
+                        id="plainText"
+                        placeholder="Type or paste the message you want to protect…"
+                      ></textarea>
+                      <small class="hint">
+                        Visible only in this browser until you click <strong>“Lock message”</strong>.
+                        Aeon does not store it anywhere.
+                      </small>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="msgPasswordEncrypt">Passphrase to lock this message</label>
+                      <div class="password-row">
+                        <input
+                          type="password"
+                          id="msgPasswordEncrypt"
+                          placeholder="Use several random words, not a reused login password"
+                          autocomplete="new-password"
+                          spellcheck="false"
+                          autocapitalize="none"
+                        />
+                        <button
+                          type="button"
+                          class="ghost password-toggle"
+                          onclick="togglePasswordVisibility('msgPasswordEncrypt', this)"
+                        >
+                          Show
+                        </button>
+                      </div>
+                      <small id="msgPwEncryptHint" class="hint"></small>
+                    <div class="pw-strength-meter" id="msgPwEncryptMeter"><div class="pw-strength-meter-fill"></div></div>
+                    </div>
+
+                    <details style="margin:0.3rem 0 0.4rem;">
+                      <summary
+                        style="cursor:pointer;font-size:0.74rem;color:var(--text-muted);"
+                      >
+                        Advanced: optional context (AAD)
+                      </summary>
+                      <div class="field-group" style="margin-top:0.3rem;">
+                        <label for="msgAadEncrypt">Context text for this message</label>
+                        <input
+                          type="text"
+                          id="msgAadEncrypt"
+                          placeholder="Most people can leave this blank"
+                        />
+                        <small class="hint">
+                          If you set this, the same text is required when unlocking.
+                          If you leave it blank, the message is locked without extra context.
+                        </small>
+                      </div>
+                    </details>
+
+                    <div class="button-row">
+                      <button type="button" class="primary" onclick="encryptMessage()">Lock message</button>
+                      <button type="button" class="ghost" onclick="clearTextFields()">
+                        Clear message fields
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="tool-divider-note">
+                    Step 1 (Lock): use the top section to create a locked JSON envelope from your message. Step 2 (Unlock): use the bottom section to paste a locked JSON envelope and recover the message. The box in the middle is where the locked JSON lives.
+                  </div>
+
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label for="msgCipherText">Locked message (encrypted JSON)</label>
+                    <textarea
+                      id="msgCipherText"
+                      placeholder="After locking, the encrypted JSON envelope appears here. Save or download it to keep the locked message, or paste an existing envelope here to unlock."
+                    ></textarea>
+                    <small class="hint">
+                      This box is shared by both steps. After you lock a message, its JSON appears here. To unlock, paste a locked JSON envelope here and use the unlock section below.
+                    </small>
+                  </div>
+                    <div class="button-row" style="margin:0.45rem 0 1.1rem;">
+                      <button type="button" onclick="copyTextEnvelope()">Copy locked JSON</button>
+                      <button type="button" onclick="downloadSecureMessageEnvelope()">
+                        Download locked JSON
+                      </button>
+                    </div>
+
+                  <!-- Unlock block -->
+                  <div class="tool-block tool-unlock">
+                    <div class="tool-block-header">
+                      <h3>Unlock a message</h3>
+                      <div class="step-chip">Step 2 · Unlock</div>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="msgPasswordDecrypt">Passphrase to unlock</label>
+                      <div class="password-row">
+                        <input
+                          type="password"
+                          id="msgPasswordDecrypt"
+                          placeholder="Same passphrase used when locking"
+                          autocomplete="off"
+                          spellcheck="false"
+                          autocapitalize="none"
+                        />
+                        <button
+                          type="button"
+                          class="ghost password-toggle"
+                          onclick="togglePasswordVisibility('msgPasswordDecrypt', this)"
+                        >
+                          Show
+                        </button>
+                      </div>
+                      <small id="msgPwDecryptHint" class="hint"></small>
+                    <div class="pw-strength-meter" id="msgPwDecryptMeter"><div class="pw-strength-meter-fill"></div></div>
+                    </div>
+
+                    <details style="margin:0.3rem 0 0.4rem;">
+                      <summary
+                        style="cursor:pointer;font-size:0.74rem;color:var(--text-muted);"
+                      >
+                        Advanced: optional context (AAD)
+                      </summary>
+                      <div class="field-group" style="margin-top:0.3rem;">
+                        <label for="msgAad">Context text</label>
+                        <input
+                          type="text"
+                          id="msgAad"
+                          placeholder="Most people can leave this blank"
+                        />
+                        <small id="msgAadNote" class="hint"></small>
+                        <small class="hint">
+                          Extra text that must match when unlocking if it was used when locking.
+                          If the envelope was created without context, any text here is ignored.
+                        </small>
+                      </div>
+                    </details>
+
+                                        <div class="field-group" style="margin-top:0.55rem;">
+                      <label for="msgPlainOutput">Unlocked message</label>
+                      <textarea
+                        id="msgPlainOutput"
+                        readonly
+                        placeholder="If the passphrase and JSON are correct, the original message appears here."
+                      ></textarea>
+
+                    <div class="button-row" style="margin-top:0.45rem;">
+                      <button type="button" class="primary" onclick="decryptMessage()">
+                        Unlock message
+                      </button>
+                      <button type="button" onclick="copyUnlockedMessage()">
+                        Copy unlocked message
+                      </button>
+                    </div>
+</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+        <div class="warning-banner pwReuseWarning" style="display:none;">
+          <strong>Passphrase reuse detected.</strong> The same passphrase appears in more than one tool
+          (Secure Message, Wormhole, Vault). For better separation of risk, consider using different
+          passphrases for different purposes.
+        </div>
+          <!-- Wormhole -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">Wormhole (File Tunnel)</div>
+                <div class="tool-summary-sub">
+                  Turn a file into a locked JSON envelope and back.
+                </div>
+              </div>
+              <div class="tool-summary-pill">File</div>
+            </summary>
+            <div class="tool-body">
+              <div class="card">
+                <div class="card-inner">
+                  <!-- Lock block -->
+                  <div class="tool-block tool-lock">
+                    <div class="tool-block-header">
+                      <h3>Lock a file</h3>
+                      <div class="step-chip">Step 1 · Lock</div>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="wormFile">File to lock</label>
+                      <input type="file" id="wormFile" />
+                      <small class="hint">
+                        Best for files up to ~50–100&nbsp;MB. Above ~100&nbsp;MB your browser may stutter or crash, and Aeon will ask you to confirm before continuing.
+                      </small>
+                    </div>
+
+                    <!-- Drag & drop zone for Wormhole -->
+                    <div class="field-group">
+                      <label for="wormDrop">Drag &amp; drop</label>
+                      <div id="wormDrop" class="drop-zone">
+                        Drag &amp; drop a file here to lock,<br />
+                        or use the file picker above.
+                      </div>
+                      <small class="hint">
+                        Dropping a file will replace any previously selected file for this lock operation.
+                      </small>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="wormPasswordEncrypt">Passphrase to lock this file</label>
+                      <div class="password-row">
+                        <input
+                          type="password"
+                          id="wormPasswordEncrypt"
+                          placeholder="Several random words is ideal"
+                          autocomplete="new-password"
+                          spellcheck="false"
+                          autocapitalize="none"
+                        />
+                        <button
+                          type="button"
+                          class="ghost password-toggle"
+                          onclick="togglePasswordVisibility('wormPasswordEncrypt', this)"
+                        >
+                          Show
+                        </button>
+                      </div>
+                      <small id="wormPwEncryptHint" class="hint"></small>
+                    <div class="pw-strength-meter" id="wormPwEncryptMeter"><div class="pw-strength-meter-fill"></div></div>
+                    </div>
+
+                    <details style="margin:0.3rem 0 0.4rem;">
+                      <summary
+                        style="cursor:pointer;font-size:0.74rem;color:var(--text-muted);"
+                      >
+                        Advanced: optional context (AAD)
+                      </summary>
+                      <div class="field-group" style="margin-top:0.3rem;">
+                        <label for="wormAadEncrypt">Context text for this file</label>
+                        <input
+                          type="text"
+                          id="wormAadEncrypt"
+                          placeholder="Most people can leave this blank"
+                        />
+                        <small class="hint">
+                          If you set this, the same text is required when unlocking.
+                          Otherwise you can ignore it.
+                        </small>
+                      </div>
+                    </details>
+          
+
+
+                    <div class="field-group">
+                      <label>
+                        <input type="checkbox" id="wormScrubFilename" />
+                        Scrub original filename from envelope
+                      </label>
+                      <small class="hint">
+                        If checked, the JSON will not store the real filename. When you unlock, Aeon will
+                        use a generic name and you can rename the file yourself.
+                      </small>
+                    </div>
+
+                    <div class="button-row">
+                      <button type="button" class="primary" onclick="encryptFile()">
+                        Lock file
+                      </button>
+                      <button type="button" onclick="copyWormholeEnvelope()">
+                        Copy locked JSON
+                      </button>
+                      <button type="button" onclick="downloadWormholeEnvelope()">
+                        Download locked JSON
+                      </button>
+                      <button type="button" class="ghost" onclick="clearWormholeEnvelope()">
+                        Clear JSON box
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="tool-divider-note">
+                    Use the top section to create locked JSON. Use the bottom section to open existing locked JSON.
+                  </div>
+
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label for="wormEnvelopeText">Locked file envelope (JSON)</label>
+                    <textarea
+                      id="wormEnvelopeText"
+                      placeholder="After locking a file, the encrypted JSON envelope appears here. Save or download this if you want to keep the locked file, or paste an existing envelope here to unlock."
+                    ></textarea>
+                  </div>
+
+                  <!-- Unlock block -->
+                  <div class="tool-block tool-unlock">
+                    <div class="tool-block-header">
+                      <h3>Unlock a file</h3>
+                      <div class="step-chip">Step 2 · Unlock</div>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="wormEnvelopeFile">Load a locked file envelope</label>
+                      <input type="file" id="wormEnvelopeFile" accept=".json,application/json" />
+                      <div class="button-row" style="margin-top:0.35rem;">
+                        <button type="button" onclick="loadWormholeEnvelopeFromFile()">
+                          Load JSON from file
+                        </button>
+                        <button
+                          type="button"
+                          class="ghost"
+                          onclick="clearWormholeFileInput()"
+                        >
+                          Clear file selection
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="wormPasswordDecrypt">Passphrase to unlock</label>
+                      <div class="password-row">
+                        <input
+                          type="password"
+                          id="wormPasswordDecrypt"
+                          placeholder="Same passphrase used when locking"
+                          autocomplete="off"
+                          spellcheck="false"
+                          autocapitalize="none"
+                        />
+                        <button
+                          type="button"
+                          class="ghost password-toggle"
+                          onclick="togglePasswordVisibility('wormPasswordDecrypt', this)"
+                        >
+                          Show
+                        </button>
+                      </div>
+                      <small id="wormPwDecryptHint" class="hint"></small>
+                    <div class="pw-strength-meter" id="wormPwDecryptMeter"><div class="pw-strength-meter-fill"></div></div>
+                    </div>
+
+                    <details style="margin:0.3rem 0 0.4rem;">
+                      <summary
+                        style="cursor:pointer;font-size:0.74rem;color:var(--text-muted);"
+                      >
+                        Advanced: context for unlock
+                      </summary>
+                      <div class="field-group" style="margin-top:0.3rem;">
+                        <label for="wormAadDecrypt">
+                          Context text (if used when locking)
+                        </label>
+                        <input
+                          type="text"
+                          id="wormAadDecrypt"
+                          placeholder="Leave empty if you did not use context when locking"
+                        />
+                        <small id="wormAadNote" class="hint"></small>
+                      </div>
+                    </details>
+
+                    <div class="button-row">
+                      <button type="button" class="primary" onclick="decryptFile()">
+                        Unlock file
+                      </button>
+                    </div>
+
+                    <small class="hint">
+                      On success, your browser downloads the original file. If the filename was scrubbed,
+                      you’ll get a generic name you can rename yourself.
+                    </small>
+
+                    <div id="wormStatus" class="status-line" aria-live="polite"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+        <div class="warning-banner pwReuseWarning" style="display:none;">
+          <strong>Passphrase reuse detected.</strong> The same passphrase appears in more than one tool
+          (Secure Message, Wormhole, Vault). For better separation of risk, consider using different
+          passphrases for different purposes.
+        </div>
+          <!-- Vault -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">Vault (Notebook as a file)</div>
+                <div class="tool-summary-sub">
+                  Multiple text/JSON entries, one locked vault file (no big files).
+                </div>
+              </div>
+              <div class="tool-summary-pill">Vault</div>
+            </summary>
+            <div class="tool-body">
+              <div class="card">
+                <div class="card-inner">
+                  <p class="note-inline">
+                    Vault is for words: notes, secrets, and small JSON snippets. It’s not designed for large files or photos — for those, use <strong>Aeon Capsule</strong>.
+                  </p>
+                  <div class="field-group">
+                    <label for="vaultPassword">Vault master passphrase</label>
+                    <div class="password-row">
+                      <input
+                        type="password"
+                        id="vaultPassword"
+                        placeholder="One strong passphrase for this whole vault"
+                        autocomplete="new-password"
+                        spellcheck="false"
+                        autocapitalize="none"
+                      />
+                      <button
+                        type="button"
+                        class="ghost password-toggle"
+                        onclick="togglePasswordVisibility('vaultPassword', this)"
+                      >
+                        Show
+                      </button>
+                    </div>
+                    <small class="hint">
+                      If you forget this, the vault file cannot be unlocked.
+                    </small>
+                    <small id="vaultPwHint" class="hint"></small>
+                    <div class="pw-strength-meter" id="vaultPwMeter"><div class="pw-strength-meter-fill"></div></div>
+                  </div>
+
+                  <div class="button-row">
+                    <button type="button" class="ghost" onclick="vaultNew()">
+                      New vault in memory
+                    </button>
+                    <button type="button" onclick="vaultLoadClick()">
+                      Open locked vault file…
+                    </button>
+                    <button type="button" class="primary" onclick="vaultSave()">
+                      Save vault as locked file
+                    </button>
+                  </div>
+
+                  <!-- Backup all vault entries as JSON -->
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <button type="button" onclick="vaultCopyAllEntries()">Copy all entries as JSON</button>
+                    <small class="hint">
+                      Copies all current entries (without the passphrase) to your clipboard as formatted JSON. Use this as a quick backup of your notes before saving the vault.
+                    </small>
+                  </div>
+
+                  <input
+                    type="file"
+                    id="vaultFileInput"
+                    accept=".json,.vault,application/json"
+                    style="display:none"
+                  />
+
+                  <!-- Drag & drop zone to load a locked vault file -->
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label for="vaultLoadDrop">Drag &amp; drop locked vault file</label>
+                    <div id="vaultLoadDrop" class="drop-zone">
+                      Drag &amp; drop a locked vault (<code>.vault</code> or <code>.json</code>) file here to open it.
+                      Be sure to enter the vault passphrase above.
+                    </div>
+                    <small class="hint">
+                      Dropping a file here will immediately load and decrypt the vault once the passphrase is correct.
+                    </small>
+                  </div>
+
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label for="vaultEntryTitle">New entry</label>
+                    <input
+                      type="text"
+                      id="vaultEntryTitle"
+                      placeholder="Title or label (e.g., WiFi, note, secret)"
+                    />
+                  </div>
+
+                  <div class="field-group">
+                    <label for="vaultEntryContent">Entry contents</label>
+                    <textarea
+                      id="vaultEntryContent"
+                      placeholder="Write the text you want to keep in this entry…"
+                    ></textarea>
+                  </div>
+
+                  <div class="button-row">
+                    <button type="button" onclick="vaultAddEntry()">Add entry</button>
+                    <button type="button" class="ghost" onclick="vaultClearEntryForm()">
+                      Clear entry form
+                    </button>
+                  </div>
+
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label for="vaultJsonFile">Import JSON file as entry</label>
+                    <input
+                      type="file"
+                      id="vaultJsonFile"
+                      accept=".json,application/json"
+                    />
+                    <small class="hint">
+                      Aeon will read the JSON file, pretty-print it, and store it as a text entry in this vault.
+                      The entry title will default to the filename.
+                    </small>
+                    <div class="button-row" style="margin-top:0.35rem;">
+                      <button type="button" onclick="vaultImportJson()">
+                        Add JSON file as entry
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Drag & drop zone to import JSON as an entry -->
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label for="vaultImportDrop">Drag &amp; drop JSON as entry</label>
+                    <div id="vaultImportDrop" class="drop-zone">
+                      Drag &amp; drop a JSON file here to add it as a formatted entry.
+                    </div>
+                    <small class="hint">
+                      The contents will be pretty-printed and stored as a new entry. The file name will be used as the entry title.
+                    </small>
+                  </div>
+
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label>Entries currently in memory</label>
+                    <div id="vaultStatusText" class="vault-status"></div>
+                    <div id="vaultEntriesList" class="vault-entries"></div>
+                    <small class="hint">
+                      Entries live only in memory until you save the vault as a locked file.
+                    </small>
+                  </div>
+
+                  <div class="field-group">
+                    <label>Selected entry preview</label>
+                    <div class="vault-preview">
+                      <div id="vaultPreviewTitle" class="vault-preview-title">
+                        No entry selected.
+                      </div>
+                      <textarea
+                        id="vaultPreviewBody"
+                        readonly
+                        class="vault-preview-body"
+                        placeholder="Click “View” next to an entry above to see it here."
+                      ></textarea>
+
+                      <div class="button-row" style="margin-top:0.4rem;">
+                        <button type="button" onclick="vaultCopyPreview()">
+                          Copy entry to clipboard
+                        </button>
+                        <button type="button" onclick="vaultDownloadPreview()">
+                          Download entry as .txt
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <!-- MicroVault: file bundle vault lite -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">Aeon Capsule (Encrypted file capsule)</div>
+                <div class="tool-summary-sub">
+                  Treat this like a small time capsule for files: bundle photos and documents into one encrypted capsule you can unlock later.
+                </div>
+              </div>
+              <div class="tool-summary-pill">Files</div>
+            </summary>
+            <div class="tool-body">
+              <div class="card">
+                <div class="card-inner">
+                  <div id="microvaultRoot">
+                    <!-- Step 1: Lock files -->
+                    <div class="tool-block tool-lock">
+                      <div class="tool-block-header">
+                        <h3>Lock files into a capsule</h3>
+                        <div class="step-chip">Step 1 · Lock</div>
+                      </div>
+
+                      <div class="field-group">
+                        <label for="lock-files">Select one or more files</label>
+                        <input id="lock-files" type="file" multiple />
+                        <small class="hint">
+                          Best for small, high-value bundles (up to ~25&nbsp;MB total). Larger capsules may be slow.
+                        </small>
+                      </div>
+
+                      <div class="field-group">
+                        <label for="lock-drop">Drag &amp; drop</label>
+                        <div id="lock-drop" class="drop-zone">
+                          Drag &amp; drop files here to add them to this vault,<br />
+                          or use the file picker above.
+                        </div>
+                        <small class="hint">
+                          Files added here stay only in this tab’s memory until you lock and download the vault.
+                        </small>
+                      </div>
+
+                      <div class="field-group">
+                        <label>
+                          <input type="checkbox" id="scrub-names" />
+                          Scrub filenames inside the vault (use generic names like <code>file-1.jpg</code>)
+                        </label>
+                        <small class="hint">
+                          Useful when you don’t want original filenames visible in the vault JSON.
+                        </small>
+                      </div>
+
+                      <div class="field-group">
+                        <label for="lock-pass">Capsule passphrase</label>
+                        <div class="pass-row">
+                          <input
+                            id="lock-pass"
+                            type="password"
+                            placeholder="Choose a strong passphrase"
+                            autocomplete="new-password"
+                            spellcheck="false"
+                            autocapitalize="none"
+                          />
+                          <button id="toggle-lock-pass" type="button" class="ghost pass-toggle">
+                            Show
+                          </button>
+                        </div>
+                        <div id="lock-pass-strength" class="status"></div>
+                        <div class="pw-strength-meter" id="lockPassMeter"><div class="pw-strength-meter-fill"></div></div>
+                      </div>
+
+                      <div class="button-row">
+                        <button id="btn-lock" type="button" class="primary">
+                          Lock files &amp; download capsule JSON
+                        </button>
+                        <button id="btn-clear" type="button" class="ghost">
+                          Clear selected files
+                        </button>
+                      </div>
+
+                      <div id="lock-status" class="status"></div>
+                      <div id="lock-list" class="file-list" style="display:none;"></div>
+                      <div id="lock-total" class="note"></div>
+
+                      <div id="vault-extra" style="display:none; margin-top:0.6rem;">
+                        <div id="vault-hash" class="note"></div>
+                        <div class="field-group" style="margin-top:0.35rem;">
+                          <label for="vault-json-output">Vault JSON (preview, safe to copy)</label>
+                          <textarea
+                            id="vault-json-output"
+                            rows="4"
+                            readonly
+                            class="mono"
+                          ></textarea>
+                          <small class="hint">
+                            Preview may be truncated for very large vaults, but the downloaded file always contains the full JSON.
+                          </small>
+                        </div>
+                        <div class="button-row">
+                          <button id="btn-copy-json" type="button">
+                            Copy full vault JSON
+                          </button>
+                          <button id="btn-clear-json" type="button" class="ghost">
+                            Clear preview
+                          </button>
+                        </div>
+                      </div>
+
+                      <p class="note">
+                        This creates one <code>.enc.json</code> vault file that contains all selected files,
+                        encrypted with your passphrase and ready to move or store offline.
+                      </p>
+                    </div>
+
+                    <!-- Step 2: Unlock vault -->
+                    <div class="tool-block tool-unlock" style="margin-top:0.7rem;">
+                      <div class="tool-block-header">
+                        <h3>Unlock a capsule &amp; download files</h3>
+                        <div class="step-chip">Step 2 · Unlock</div>
+                      </div>
+
+                      <div class="field-group">
+                        <label for="unlock-vault">Capsule JSON file (<code>.enc.json</code>)</label>
+                        <input id="unlock-vault" type="file" accept="application/json" />
+                      </div>
+
+                      <div class="field-group">
+                        <label for="unlock-pass">Vault passphrase</label>
+                        <div class="pass-row">
+                          <input
+                            id="unlock-pass"
+                            type="password"
+                            placeholder="Same passphrase used to lock the vault"
+                            autocomplete="off"
+                            spellcheck="false"
+                            autocapitalize="none"
+                          />
+                          <button id="toggle-unlock-pass" type="button" class="ghost pass-toggle">
+                            Show
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="button-row">
+                        <button id="btn-unlock" type="button" class="primary">
+                          Unlock vault
+                        </button>
+                        <button
+                          id="btn-download-all"
+                          type="button"
+                          class="ghost"
+                          style="display:none;"
+                        >
+                          Download all files
+                        </button>
+                      </div>
+
+                      <div id="unlock-status" class="status"></div>
+                      <div id="unlock-list" class="file-list" style="display:none;"></div>
+
+                      <p class="note">
+                        After unlocking, you’ll see a list of files. Use the Download button next to each
+                        one (or “Download all”) to restore them to your browser’s Downloads folder.
+                      </p>
+                    </div>
+
+                    <!-- Step 3: Nuke -->
+                    <div class="tool-block" style="margin-top:0.7rem;">
+                      <div class="tool-block-header">
+                        <h3>Nuke this session</h3>
+                      </div>
+                      <div class="button-row">
+                        <button id="btn-nuke" type="button" class="danger">
+                          Nuke: clear Aeon Capsule state in this tab
+                        </button>
+                      </div>
+                      <p class="note">
+                        This clears selected files, passphrases, previews, and unlocked lists from this tab.
+                        It does not delete anything already saved to your disk.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details><!-- Security & Release Notes -->
+        
+
+        <!-- License (MIT) -->
+        <details class="tool-panel" style="display:none;">
+          <summary>
+            <div class="tool-summary-main">
+              <div class="tool-summary-title">MIT License</div>
+              <div class="tool-summary-sub">Full license text</div>
+            </div>
+            <div class="tool-summary-pill">Legal</div>
+          </summary>
+          <div class="tool-body">
+            <div class="card">
+              <div class="card-inner">
+                <pre class="mono" style="white-space: pre-wrap;">
+MIT License
+
+Copyright (c) 2025 Steven Politowicz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+                </pre>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Support Aeon -->
+        <details class="tool-panel" style="display:none;">
+          <summary>
+            <div class="tool-summary-main">
+              <div class="tool-summary-title">Support future builds</div>
+              <div class="tool-summary-sub">Help fund Aeon’s ongoing development.</div>
+            </div>
+            <div class="tool-summary-pill">Support</div>
+          </summary>
+          <div class="tool-body">
+            <div class="card">
+              <div class="card-inner">
+                <p><strong>Support future builds</strong></p>
+                <p class="note-inline">
+                  Aeon is offered as a free, open‑source project. If this tool helps you and you would like to see continued development, please consider leaving a tip.
+                  <br><br>
+                  <strong>Venmo:</strong> <code>@underthecity</code><br>
+                  <!-- Additional optional donation platforms could be listed here (e.g. PayPal, GitHub Sponsors). -->
+                  <br>
+                  Contributions are entirely optional and help cover the costs of infrastructure, AI services and collaboration with other creators.
+                </p>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Support tools -->
+        <h2 class="section-title"><span>◆</span>Support & advanced</h2>
+        <div id="pwReuseWarning" class="warning-banner pwReuseWarning" style="display:none;">
+          <strong>Passphrase reuse detected.</strong> The same passphrase appears in more than one tool
+          (Secure Message, Wormhole, Vault). For better separation of risk, consider using different
+          passphrases for different purposes.
+        </div>
+        <section class="tool-stack">
+          <!-- Passphrase Forge -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">Passphrase Forge</div>
+                <div class="tool-summary-sub">Generate strong multi-word passphrases.</div>
+              </div>
+              <div class="tool-summary-pill">Passphrases</div>
+            </summary>
+            <div class="tool-body">
+              <div class="card">
+                <div class="card-inner">
+                  <div class="field-group">
+                    <label for="passphraseOutput">Generated passphrase</label>
+                    <textarea
+                      id="passphraseOutput"
+                      readonly
+                      placeholder="Click a button below to generate a random passphrase."
+                    ></textarea>
+                    <small class="hint">
+  Wordlist: 200 neutral words (~7.6 bits per word). A 6-word phrase is already much
+  stronger than most login passwords (~46 bits). For important secrets, aim for at least
+  <strong>8–10 words</strong> (~61–76 bits of randomness) plus the slowdown added by PBKDF2.
+</small>
+                  </div>
+
+                  <div class="button-row">
+                    <button type="button" onclick="generatePassphrase(4)">4-word phrase</button>
+                    <button type="button" onclick="generatePassphrase(6)">6-word phrase</button>
+                    <button type="button" onclick="generatePassphrase(8)">8-word phrase</button>
+                    <button type="button" onclick="generatePassphrase(10)">10-word phrase</button>
+                    <button type="button" onclick="copyPassphraseOutput()">Copy passphrase</button>
+                  </div>
+
+                  <div class="button-row" style="margin-top:0.45rem;">
+                    <button type="button" onclick="sendPassphraseToMessenger()">
+                      Send to Secure Message
+                    </button>
+                    <button type="button" onclick="sendPassphraseToWormhole()">
+                      Send to Wormhole
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <!-- File Integrity -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">File Integrity Check</div>
+                <div class="tool-summary-sub">
+                  SHA-256 fingerprint to check if a file changed.
+                </div>
+              </div>
+              <div class="tool-summary-pill">Hash</div>
+            </summary>
+            <div class="tool-body">
+              <div class="card">
+                <div class="card-inner">
+                  <div class="field-group">
+                    <label for="hashFileInput">File to fingerprint</label>
+                    <input type="file" id="hashFileInput" />
+                  </div>
+
+                  <div class="button-row">
+                    <button type="button" class="primary" onclick="computeFileHash()">
+                      Compute SHA-256
+                    </button>
+                  </div>
+
+                  <div class="field-group" style="margin-top:0.55rem;">
+                    <label for="hashOutput">Computed fingerprint (hex)</label>
+                    <textarea
+                      id="hashOutput"
+                      readonly
+                      placeholder="After computing, the SHA-256 fingerprint appears here."
+                    ></textarea>
+                    <button type="button" onclick="copyHashOutput()">Copy fingerprint</button>
+                  </div>
+
+                  <div class="field-group">
+                    <label for="expectedHash">Expected fingerprint (optional)</label>
+                    <textarea
+                      id="expectedHash"
+                      placeholder="Paste a known SHA-256 hash here to compare."
+                    ></textarea>
+                  </div>
+
+                  <div class="button-row">
+                    <button type="button" onclick="compareHashes()">Compare</button>
+                  </div>
+
+                  <div class="field-group">
+                    <label for="hashCompareResult">Comparison result</label>
+                    <textarea
+                      id="hashCompareResult"
+                      readonly
+                      placeholder="Match / mismatch result appears here."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <!-- Diagnostics -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">Diagnostics & Nuke</div>
+                <div class="tool-summary-sub">
+                  Self-test crypto + clear all visible fields.
+                </div>
+              </div>
+              <div class="tool-summary-pill">Self-test</div>
+            </summary>
+            <div class="tool-body">
+              <div class="card">
+                <div class="card-inner">
+                  <div class="field-group">
+                    <label for="diagOutput">Self-test output</label>
+                    <textarea
+                      id="diagOutput"
+                      readonly
+                      placeholder="Click “Run self-test” to confirm this browser can lock/unlock test data."
+                    ></textarea>
+                    <button type="button" onclick="copyDiagOutput()">Copy self-test log</button>
+                  </div>
+
+                  <div class="button-row">
+                    <button type="button" onclick="runSelfTest()">Run self-test</button>
+                    <button
+                      type="button"
+                      class="ghost danger"
+                      onclick="nukeAll()"
+                    >
+                      Nuke all text fields
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <!-- Advanced crypto settings -->
+          <details class="tool-panel">
+            <summary>
+              <div class="tool-summary-main">
+                <div class="tool-summary-title">Advanced crypto settings</div>
+                <div class="tool-summary-sub">
+                  PBKDF2 iterations (how “hard” your passphrase is stretched).
+                </div>
+              </div>
+              <div class="tool-summary-pill">Advanced</div>
+            </summary>
+            <div class="tool-body">
+              <div class="kdf-panel">
+                <h3>Passphrase hardness (PBKDF2)</h3>
+                <div class="kdf-row">
+                  <label for="kdfIterations">Iterations</label>
+                  <input
+                    type="number"
+                    id="kdfIterations"
+                    value="300000"
+                    min="100000"
+                    max="2000000"
+                    step="10000"
+                  />
+                </div>
+                <div class="kdf-presets">
+                  <button type="button" onclick="setKdfIterations(150000)">
+                    Fast (lighter)
+                  </button>
+                  <button type="button" onclick="setKdfIterations(300000)">
+                    Balanced (default)
+                  </button>
+                  <button type="button" onclick="setKdfIterations(600000)">
+                    Paranoid (heavier)
+                  </button>
+                </div>
+                <div class="kdf-note">
+                  Higher numbers slow down brute-force guessing but also make lock/unlock a bit
+                  slower on your device. If you’re not sure, leave the default.
+                </div>
+                <div id="kdfLastInfo" class="kdf-note"></div>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <div class="divider"></div>
+        <div class="footer-row">
+          <div>
+            <strong>Aeon Secure Suite v4.4 · Offline tools.</strong>
+            This file does not contact any server. You decide where the HTML, envelopes,
+            and vault files live.
+          </div>
+          <div class="mono">
+            <span class="danger-text">No password recovery.</span>
+            If a passphrase is lost or forgotten, the corresponding data is unrecoverable.
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ---- Crypto core & helpers ----
+    const KEY_LENGTH_BITS = 256;
+    const KEY_LENGTH_BYTES = KEY_LENGTH_BITS / 8;
+    const DEFAULT_ITER = 300000;
+    const MIN_ITER = 100000;
+
+    // Track passphrase reuse across tools (Message, Wormhole, Vault)
+    const PASSFIELD_GROUPS = [
+      { id: "msgPasswordEncrypt", group: "Secure Message" },
+      { id: "msgPasswordDecrypt", group: "Secure Message" },
+      { id: "wormPasswordEncrypt", group: "Wormhole" },
+      { id: "wormPasswordDecrypt", group: "Wormhole" },
+      { id: "vaultPassword", group: "Vault" },
+      { id: "lock-pass", group: "MicroVault" },
+      { id: "unlock-pass", group: "MicroVault" }
+    ];
+
+    function checkPassphraseReuse() {
+      const warningEls = document.querySelectorAll(".pwReuseWarning");
+      if (!warningEls.length) return;
+
+      const valueMap = new Map();
+
+      for (const cfg of PASSFIELD_GROUPS) {
+        const el = document.getElementById(cfg.id);
+        if (!el) continue;
+        const val = (el.value || "").trim();
+        if (!val) continue;
+
+        let groups = valueMap.get(val);
+        if (!groups) {
+          groups = new Set();
+          valueMap.set(val, groups);
+        }
+        groups.add(cfg.group);
+      }
+
+      let reuse = false;
+      for (const groups of valueMap.values()) {
+        if (groups.size > 1) {
+          reuse = true;
+          break;
+        }
+      }
+
+      for (const el of warningEls) {
+        el.style.display = reuse ? "block" : "none";
+      }
+    }
+
+    function initPassphraseReuseWarning() {
+      const ids = Array.from(new Set(PASSFIELD_GROUPS.map(cfg => cfg.id)));
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        el.addEventListener("input", checkPassphraseReuse);
+      }
+      // Run once on load in case fields are prefilled by the browser
+      checkPassphraseReuse();
+    }
+
+    // 200-word passphrase list
+    const PASSPHRASE_WORDLIST = [
+  "aurora","harbor","cipher","granite","nebula","vector","lantern","summit",
+  "meridian","horizon","thunder","lattice","harvest","orchard","delta",
+  "cosmic","windmill","orchid","falcon","lotus","cascade","solstice",
+  "mariner","phoenix","tidal","fable","citadel","meadow","compass",
+  "crystal","glacier","midnight","lumen","keystone","saffron","topaz",
+  "willow","banyan","canyon","zephyr","starlight","rift","pillar",
+  "solace","grove","skyline","moonrise","sunstone","prairie","shimmer",
+  "runestone","fjord","ashwood","hollow","ridgeline","auric","seafoam",
+  "nightshade","maple","granary","hearth","ironwood","mistfall","rainstone",
+  "sandbar","silverleaf","stonegate","stormveil","wavecrest","wildfern",
+  "windgate","wintergreen","brook","highland","quartz","harlequin",
+  "sundial","mistwood","cloudburst","axial","boreal","cerulean","cobalt",
+  "coral","fractal","gossamer","helios","indra","jade","kelvin","labyrinth",
+  "magnetar","obsidian","opaline","paradox","quasar","rhythm","safflower",
+  "tangent","umbra","vantage","whisper","yonder","zenith","amber","solitude",
+  "acorn","badger","cinder","dovetail","foxglove","granule","helix","inkwell",
+  "jasmine","lilac","monsoon","nimbus","onyx","pavilion","quill","raptor",
+  "spruce","tundra","umbriel","verdant","xenon","yarrow","amethyst","briar",
+  "caper","evergreen","flint","ginger","ivory","juniper","kestrel","lagoon",
+  "mallow","nectar","osprey","pebble","quiver","rosetta","sienna","topology",
+  "uranium","velvet","wisteria","yosemite","zircon","argyle","blossom",
+  "caldera","daybreak","foxtrot","glimmer"
+];
+
+    
+
+    
+    
+    function generatePassphrase(count) {
+      const words = PASSPHRASE_WORDLIST;
+      if (!Array.isArray(words) || words.length === 0) return;
+      const outEl = document.getElementById("passphraseOutput");
+      if (!outEl) return;
+      const picks = [];
+      for (let i = 0; i < count; i++) {
+        const idx = Math.floor(Math.random() * words.length);
+        picks.push(words[idx]);
+      }
+      outEl.value = picks.join(" ");
+    }
+
+function bufToBase64(buf) {
+      const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function base64ToUint8Array(b64) {
+      const binary = atob(b64);
+      const len = binary.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    function wipeUint8Array(arr) {
+      if (!arr) return;
+      arr.fill(0);
+    }
+
+    async function getKeyMaterial(password) {
+      const enc = new TextEncoder();
+      return crypto.subtle.importKey(
+        "raw",
+        enc.encode(password),
+        { name: "PBKDF2" },
+        false,
+        ["deriveKey"]
+      );
+    }
+
+    async function deriveKey(keyMaterial, salt, iterations, hash, lengthBits) {
+      return crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          salt,
+          iterations,
+          hash
+        },
+        keyMaterial,
+        { name: "AES-GCM", length: lengthBits },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    function getIterations() {
+      const el = document.getElementById("kdfIterations");
+      if (!el) return DEFAULT_ITER;
+      let v = parseInt(el.value, 10);
+      if (isNaN(v) || v < MIN_ITER) {
+        v = DEFAULT_ITER;
+        el.value = String(v);
+      }
+      return v;
+    }
+
+    function setKdfIterations(val) {
+      const el = document.getElementById("kdfIterations");
+      if (!el) return;
+      el.value = String(val);
+    }
+
+  // ---- Feature detection ----
+  // Check that the essential browser APIs are present and alert the user if not. Without
+  // these features (Web Crypto API, FileReader API, Blob API) Aeon cannot function.
+  function checkBrowserFeatures() {
+    const required = [
+      { test: () => window.crypto && window.crypto.subtle, name: "Web Crypto API" },
+      { test: () => window.FileReader, name: "FileReader API" },
+      { test: () => window.Blob, name: "Blob API" }
+    ];
+    const missing = required.filter(x => !x.test()).map(x => x.name);
+    if (missing.length) {
+      alert(
+        "Your browser is missing required features: " + missing.join(", ") +
+        ". Aeon may not function properly. Please update to a modern browser."
+      );
+    }
+  }
+
+    
+    function estimateStrength(pw) {
+      if (!pw) return "";
+      const length = pw.length;
+      const uniqueChars = new Set(pw).size;
+      let score = 0;
+
+      if (length >= 12) score += 1;
+      if (length >= 16) score += 1;
+      if (length >= 20) score += 1;
+      if (uniqueChars >= 8) score += 1;
+      if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score += 1;
+      if (/[0-9]/.test(pw)) score += 1;
+      if (/[^A-Za-z0-9]/.test(pw)) score += 1;
+
+      if (score <= 2) {
+        return "Weak: consider a longer passphrase made of several random words.";
+      } else if (score <= 4) {
+        return "Okay: better than a password, but longer random words are safer.";
+      } else {
+        return "Strong: this looks like a solid passphrase, assuming it is unique.";
+      }
+    }
+
+    function updateStrengthMeter(meterEl, strengthText) {
+      if (!meterEl) return;
+      meterEl.className = "pw-strength-meter";
+      if (!strengthText) return;
+
+      if (strengthText.startsWith("Weak")) {
+        meterEl.className += " pw-strength-weak";
+      } else if (strengthText.startsWith("Okay")) {
+        meterEl.className += " pw-strength-medium";
+      } else if (strengthText.startsWith("Strong")) {
+        meterEl.className += " pw-strength-strong";
+      }
+    }
+
+    function hookPasswordHints() {
+      const msgEnc = document.getElementById("msgPasswordEncrypt");
+      const msgEncHint = document.getElementById("msgPwEncryptHint");
+      const msgEncMeter = document.getElementById("msgPwEncryptMeter");
+      if (msgEnc && msgEncHint) {
+        msgEnc.addEventListener("input", () => {
+          const strength = estimateStrength(msgEnc.value);
+          msgEncHint.textContent = strength;
+          updateStrengthMeter(msgEncMeter, strength);
+        });
+      }
+
+      const msgDec = document.getElementById("msgPasswordDecrypt");
+      const msgDecHint = document.getElementById("msgPwDecryptHint");
+      const msgDecMeter = document.getElementById("msgPwDecryptMeter");
+      if (msgDec && msgDecHint) {
+        msgDec.addEventListener("input", () => {
+          const strength = estimateStrength(msgDec.value);
+          msgDecHint.textContent = strength;
+          updateStrengthMeter(msgDecMeter, strength);
+        });
+      }
+
+      const wormEnc = document.getElementById("wormPasswordEncrypt");
+      const wormEncHint = document.getElementById("wormPwEncryptHint");
+      const wormEncMeter = document.getElementById("wormPwEncryptMeter");
+      if (wormEnc && wormEncHint) {
+        wormEnc.addEventListener("input", () => {
+          const strength = estimateStrength(wormEnc.value);
+          wormEncHint.textContent = strength;
+          updateStrengthMeter(wormEncMeter, strength);
+        });
+      }
+
+      const wormDec = document.getElementById("wormPasswordDecrypt");
+      const wormDecHint = document.getElementById("wormPwDecryptHint");
+      const wormDecMeter = document.getElementById("wormPwDecryptMeter");
+      if (wormDec && wormDecHint) {
+        wormDec.addEventListener("input", () => {
+          const strength = estimateStrength(wormDec.value);
+          wormDecHint.textContent = strength;
+          updateStrengthMeter(wormDecMeter, strength);
+        });
+      }
+
+      // Vault password strength hint
+      const vaultPw = document.getElementById("vaultPassword");
+      const vaultPwHint = document.getElementById("vaultPwHint");
+      const vaultPwMeter = document.getElementById("vaultPwMeter");
+      if (vaultPw && vaultPwHint) {
+        vaultPw.addEventListener("input", () => {
+          const strength = estimateStrength(vaultPw.value);
+          vaultPwHint.textContent = strength;
+          updateStrengthMeter(vaultPwMeter, strength);
+        });
+      }
+    }
+
+
+    // show/hide password
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === "password") {
+        input.type = "text";
+        if (btn) btn.textContent = "Hide";
+      } else {
+        input.type = "password";
+        if (btn) btn.textContent = "Show";
+      }
+    }
+
+    // track last KDF usage
+    function recordLastKdfUsage(iterations, kind) {
+      const el = document.getElementById("kdfLastInfo");
+      if (!el) return;
+      const when = new Date().toLocaleString();
+      el.textContent =
+        `Last unlocked item (${kind}) used ${iterations} iterations · ${when}`;
+    }
+
+    // ---- Secure Message ----
+    async function encryptMessage() {
+      const msgTypeEl = document.getElementById("msgType");
+      const plainEl = document.getElementById("plainText");
+      const pwEl = document.getElementById("msgPasswordEncrypt");
+      const aadEncEl = document.getElementById("msgAadEncrypt");
+      const outEl = document.getElementById("msgCipherText");
+      const aadNote = document.getElementById("msgAadNote");
+
+      if (!msgTypeEl || !plainEl || !pwEl || !outEl) {
+        alert("Missing Secure Message elements in the page.");
+        return;
+      }
+      if (aadNote) aadNote.textContent = "";
+
+      const plaintext = plainEl.value;
+      const password = pwEl.value;
+      const aadStr = aadEncEl ? aadEncEl.value.trim() : "";
+      const type = msgTypeEl.value || "text/plain";
+
+      if (!plaintext) {
+        alert("Please enter a message to lock.");
+        return;
+      }
+      if (!password) {
+        alert("Please enter a passphrase to lock this message.");
+        return;
+      }
+      if (password.length < 12) {
+        const cont = confirm(
+          "This passphrase is quite short. Short passwords are much easier to guess.\n\n" +
+          "Do you still want to continue with this passphrase?"
+        );
+        if (!cont) return;
+      }
+
+      try {
+        const iterations = getIterations();
+        const enc = new TextEncoder();
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const plaintextBytes = enc.encode(plaintext);
+
+        const keyMaterial = await getKeyMaterial(password);
+        const key = await deriveKey(keyMaterial, salt, iterations, "SHA-256", KEY_LENGTH_BITS);
+
+        let aadBytes = null;
+        if (aadStr) {
+          aadBytes = enc.encode(aadStr);
+        }
+
+        const algo = { name: "AES-GCM", iv };
+        if (aadBytes) {
+          algo.additionalData = aadBytes;
+        }
+
+        const ciphertextBuf = await crypto.subtle.encrypt(algo, key, plaintextBytes);
+
+        const envelope = {
+          version: "1.0",
+          created_at: new Date().toISOString(),
+          purpose: "Aeon Secure Message",
+          plaintext: {
+            type,
+            encoding: "utf-8"
+          },
+          kdf: {
+            name: "PBKDF2",
+            hash: "SHA-256",
+            iterations,
+            salt: bufToBase64(salt)
+          },
+          cipher: {
+            algo: "AES-GCM",
+            key_bits: KEY_LENGTH_BITS,
+            iv: bufToBase64(iv),
+            aad: aadBytes ? bufToBase64(aadBytes) : null,
+            ciphertext: bufToBase64(ciphertextBuf)
+          }
+        };
+
+        outEl.value = JSON.stringify(envelope, null, 2);
+
+        wipeUint8Array(plaintextBytes);
+        wipeUint8Array(salt);
+        wipeUint8Array(iv);
+        if (aadBytes) wipeUint8Array(aadBytes);
+      } catch (e) {
+        console.error(e);
+        alert("Locking (encryption) error: " + e.message);
+      }
+    }
+
+    async function decryptMessage() {
+      const inEl = document.getElementById("msgCipherText");
+      const pwEl = document.getElementById("msgPasswordDecrypt");
+      const aadEl = document.getElementById("msgAad");
+      const outEl = document.getElementById("msgPlainOutput");
+      const aadNote = document.getElementById("msgAadNote");
+
+      if (!inEl || !pwEl || !aadEl || !outEl) {
+        alert("Missing Secure Message elements in the page.");
+        return;
+      }
+
+      if (aadNote) aadNote.textContent = "";
+
+      const inputText = inEl.value.trim();
+      const password = pwEl.value;
+      const aadStr = aadEl.value.trim();
+
+      if (!inputText) {
+        alert("Please paste or load a locked message envelope (JSON) to unlock.");
+        return;
+      }
+      if (!password) {
+        alert("Please enter the passphrase used to lock this message.");
+        return;
+      }
+
+      try {
+        let envelope;
+        try {
+          envelope = JSON.parse(inputText);
+        } catch (err) {
+          throw new SyntaxError("The input is not valid JSON. Make sure you pasted the full envelope.");
+        }
+
+        if (envelope.version !== "1.0") {
+          throw new Error(
+            "This locked message was created by a different or newer version of Aeon (" +
+            envelope.version +
+            "). This page only understands version 1.0."
+          );
+        }
+
+        const plaintextMeta = envelope.plaintext || {};
+        const encoding = (plaintextMeta.encoding || "utf-8").toLowerCase();
+        const type = plaintextMeta.type || "text/plain";
+
+        const kdf = envelope.kdf || {};
+        const cipher = envelope.cipher || {};
+
+        if (!kdf.salt || !cipher.iv || !cipher.ciphertext) {
+          throw new Error("Envelope is missing salt, IV, or ciphertext.");
+        }
+
+        if (kdf.name !== "PBKDF2" || kdf.hash !== "SHA-256") {
+          throw new Error(
+            "Unsupported key-derivation settings in this envelope. It may have been created by a different Aeon version or another tool."
+          );
+        }
+        if (cipher.algo !== "AES-GCM") {
+          throw new Error(
+            "Unsupported cipher algorithm in this envelope (expected AES-GCM). It may have been created by a different Aeon version or another tool."
+          );
+        }
+
+        const salt = base64ToUint8Array(kdf.salt);
+        const iv = base64ToUint8Array(cipher.iv);
+        const ciphertext = base64ToUint8Array(cipher.ciphertext);
+
+        let aadBytes = null;
+        const enc = new TextEncoder();
+        if (cipher.aad) {
+          if (!aadStr) {
+            if (aadNote) {
+              aadNote.textContent =
+                "This locked message was created with context (AAD). Enter the same text used when locking.";
+            }
+            throw new Error("This envelope expects context (AAD), but none was provided.");
+          }
+          aadBytes = enc.encode(aadStr);
+        } else if (aadStr && !cipher.aad) {
+          if (aadNote) {
+            aadNote.textContent =
+              "This locked message was created without context (AAD). Any text here will be ignored.";
+          }
+        }
+
+        const iterations = kdf.iterations || getIterations();
+        const keyMaterial = await getKeyMaterial(password);
+        const key = await deriveKey(keyMaterial, salt, iterations, "SHA-256", KEY_LENGTH_BITS);
+
+        const algo = { name: "AES-GCM", iv };
+        if (aadBytes) {
+          algo.additionalData = aadBytes;
+        }
+
+        const plainBuf = await crypto.subtle.decrypt(algo, key, ciphertext);
+        const dec = new TextDecoder(encoding);
+        const plaintext = dec.decode(plainBuf);
+
+        if (type === "application/json") {
+          try {
+            const parsed = JSON.parse(plaintext);
+            outEl.value = JSON.stringify(parsed, null, 2);
+          } catch {
+            outEl.value = plaintext;
+          }
+        } else {
+          outEl.value = plaintext;
+        }
+
+        recordLastKdfUsage(iterations, "Secure Message");
+
+        wipeUint8Array(salt);
+        wipeUint8Array(iv);
+        wipeUint8Array(ciphertext);
+        if (aadBytes) wipeUint8Array(aadBytes);
+      } catch (e) {
+        console.error(e);
+        let msg;
+        if (e instanceof SyntaxError) {
+          msg = e.message;
+        } else if (e.name === "OperationError" || e instanceof DOMException) {
+          msg =
+            "Unlocking (decryption) failed.\n\n" +
+            "This usually means:\n" +
+            "- The passphrase is incorrect, or\n" +
+            "- The envelope was changed or damaged, or\n" +
+            "- The context (AAD) does not match.";
+        } else {
+          msg = "Unlocking error: " + e.message;
+        }
+        alert(msg);
+      }
+    }
+
+    function clearTextFields() {
+      const ids = [
+        "plainText","msgCipherText","msgPlainOutput",
+        "msgPasswordEncrypt","msgPasswordDecrypt","msgAad","msgAadEncrypt"
+      ];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      }
+      const hints = ["msgPwEncryptHint","msgPwDecryptHint","msgAadNote"];
+      for (const id of hints) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "";
+      }
+    }
+
+    
+    function copyPassphraseOutput() {
+      const el = document.getElementById("passphraseOutput");
+      if (!el || !navigator.clipboard) return;
+      const val = el.value.trim();
+      if (!val) return;
+      navigator.clipboard.writeText(val).then(
+        () => alert("Passphrase copied to clipboard."),
+        () => alert("Failed to copy passphrase.")
+      );
+    }
+
+    function copyHashOutput() {
+      const el = document.getElementById("hashOutput");
+      if (!el || !navigator.clipboard) return;
+      const val = el.value.trim();
+      if (!val) return;
+      navigator.clipboard.writeText(val).then(
+        () => alert("Fingerprint copied to clipboard."),
+        () => alert("Failed to copy fingerprint.")
+      );
+    }
+
+    function copyDiagOutput() {
+      const el = document.getElementById("diagOutput");
+      if (!el || !navigator.clipboard) return;
+      const val = el.value.trim();
+      if (!val) return;
+      navigator.clipboard.writeText(val).then(
+        () => alert("Self-test log copied to clipboard."),
+        () => alert("Failed to copy self-test log.")
+      );
+    }
+
+function copyTextEnvelope() {
+      const el = document.getElementById("msgCipherText");
+      if (!el || !navigator.clipboard) return;
+      const val = el.value;
+      if (!val) return;
+      navigator.clipboard.writeText(val).then(
+        () => alert("Locked message (JSON) copied to clipboard."),
+        () => alert("Failed to copy to clipboard.")
+      );
+    }
+
+    function copyWormholeEnvelope() {
+      const el = document.getElementById("wormEnvelopeText");
+      if (!el) {
+        alert("Missing Wormhole envelope box in the page.");
+        return;
+      }
+      const val = el.value;
+      if (!val.trim()) {
+        alert("There is no locked file envelope to copy yet.");
+        return;
+      }
+      if (!navigator.clipboard) {
+        alert("Clipboard access is not available in this browser.");
+        return;
+      }
+      navigator.clipboard.writeText(val).then(
+        () => alert("Locked file envelope (JSON) copied to clipboard."),
+        () => alert("Failed to copy locked file envelope to clipboard.")
+      );
+    }
+
+    function downloadSecureMessageEnvelope() {
+  const outEl = document.getElementById("msgCipherText");
+  if (!outEl || !outEl.value.trim()) {
+    alert("There is no locked message envelope to download yet.");
+    return;
+  }
+
+  let envelope;
+  try {
+    envelope = JSON.parse(outEl.value);
+  } catch {
+    alert("The Secure Message envelope is not valid JSON.");
+    return;
+  }
+
+  const blob = new Blob([JSON.stringify(envelope, null, 2)], {
+    type: "application/json"
+  });
+
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const fname =
+    `secure-message-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-` +
+    `${pad(d.getHours())}${pad(d.getMinutes())}.enc.json`;
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+    // ---- Wormhole (file) ----
+    async function encryptFile() {
+      const fileInput = document.getElementById("wormFile");
+      const pwEl = document.getElementById("wormPasswordEncrypt");
+      const aadEl = document.getElementById("wormAadEncrypt");
+      const scrubEl = document.getElementById("wormScrubFilename");
+      const outEl = document.getElementById("wormEnvelopeText");
+      const aadNote = document.getElementById("wormAadNote");
+      const statusEl = document.getElementById("wormStatus");
+
+      if (!fileInput || !pwEl || !aadEl || !outEl) {
+        alert("Missing Wormhole elements in the page.");
+        return;
+      }
+      if (aadNote) aadNote.textContent = "";
+
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please choose a file to lock.");
+        return;
+      }
+      // Prompt if the file is very large to avoid exhausting memory. Files over 100 MB
+      // are likely to cause browser crashes or very long processing times due to
+      // multiple copies in memory. If the user declines, abort the operation.
+      if (file.size > 100 * 1024 * 1024) {
+        const cont = confirm(
+          "This file is " + fmtSize(file.size) + ".\n\n" +
+          "Files over 100 MB may crash your browser or take a very long time.\n\n" +
+          "Continue anyway?"
+        );
+        if (!cont) {
+          if (statusEl) statusEl.textContent = "";
+          return;
+        }
+      }
+      if (statusEl) {
+        statusEl.textContent = "Locking file... this may take some time for large files.";
+      }
+      const password = pwEl.value;
+      const aadStr = aadEl.value.trim();
+      const scrub = scrubEl && scrubEl.checked;
+
+      if (!password) {
+        alert("Please enter a passphrase to lock this file.");
+        return;
+      }
+      if (password.length < 12) {
+        const cont = confirm(
+          "This passphrase is quite short. Short passwords are easier to guess.\n\n" +
+          "Do you still want to continue with this passphrase?"
+        );
+        if (!cont) return;
+      }
+
+      const iterations = getIterations();
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+
+      try {
+        // Provide progress feedback while reading the file.
+        if (statusEl) {
+          statusEl.textContent = "Reading file... this may take some time for large files.";
+        }
+        const fileBytes = new Uint8Array(await file.arrayBuffer());
+        if (statusEl) {
+          statusEl.textContent = "Deriving key (PBKDF2)...";
+        }
+        const keyMaterial = await getKeyMaterial(password);
+        const key = await deriveKey(keyMaterial, salt, iterations, "SHA-256", KEY_LENGTH_BITS);
+
+        let aadBytes = null;
+        if (aadStr) {
+          aadBytes = new TextEncoder().encode(aadStr);
+        }
+
+        const algo = { name: "AES-GCM", iv };
+        if (aadBytes) {
+          algo.additionalData = aadBytes;
+        }
+
+        if (statusEl) {
+          statusEl.textContent = "Encrypting file...";
+        }
+        const ciphertextBuf = await crypto.subtle.encrypt(algo, key, fileBytes);
+
+        const envelope = {
+          version: "1.0",
+          created_at: new Date().toISOString(),
+          purpose: "Aeon Wormhole file",
+          plaintext: {
+            type: "application/octet-stream",
+            encoding: "binary",
+            filename: scrub ? null : file.name,
+            filename_scrubbed: !!scrub,
+            size: file.size
+          },
+          kdf: {
+            name: "PBKDF2",
+            hash: "SHA-256",
+            iterations,
+            salt: bufToBase64(salt)
+          },
+          cipher: {
+            algo: "AES-GCM",
+            key_bits: KEY_LENGTH_BITS,
+            iv: bufToBase64(iv),
+            aad: aadBytes ? bufToBase64(aadBytes) : null,
+            ciphertext: bufToBase64(ciphertextBuf)
+          }
+        };
+
+        outEl.value = JSON.stringify(envelope, null, 2);
+
+        wipeUint8Array(fileBytes);
+        wipeUint8Array(salt);
+        wipeUint8Array(iv);
+        if (aadBytes) wipeUint8Array(aadBytes);
+        if (statusEl) {
+          statusEl.textContent = "File locked. You can now save or move the JSON envelope.";
+        }
+      } catch (e) {
+        console.error(e);
+        alert("File locking (encryption) error: " + e.message);
+        if (statusEl) {
+          statusEl.textContent = "File locking failed. Please check the file and try again.";
+        }
+      }
+    }
+
+    function downloadWormholeEnvelope() {
+      const outEl = document.getElementById("wormEnvelopeText");
+      if (!outEl || !outEl.value.trim()) {
+        alert("There is no locked file envelope to download yet.");
+        return;
+      }
+      let envelope;
+      try {
+        envelope = JSON.parse(outEl.value);
+      } catch {
+        alert("The Wormhole envelope is not valid JSON.");
+        return;
+      }
+      const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      a.download = `wormhole-envelope-${ts}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function clearWormholeEnvelope() {
+      const el = document.getElementById("wormEnvelopeText");
+      if (el) el.value = "";
+    }
+
+    function clearWormholeFileInput() {
+      const el = document.getElementById("wormEnvelopeFile");
+      if (el) el.value = "";
+    }
+
+    function loadWormholeEnvelopeFromFile() {
+      const fileInput = document.getElementById("wormEnvelopeFile");
+      const outEl = document.getElementById("wormEnvelopeText");
+      if (!fileInput || !outEl) {
+        alert("Missing Wormhole elements in the page.");
+        return;
+      }
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a JSON envelope file to load.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = e => {
+        outEl.value = e.target.result;
+      };
+      reader.onerror = e => {
+        console.error(e);
+        alert("Failed to read the envelope file.");
+      };
+      reader.readAsText(file);
+    }
+
+    async function decryptFile() {
+      const inEl = document.getElementById("wormEnvelopeText");
+      const pwEl = document.getElementById("wormPasswordDecrypt");
+      const aadEl = document.getElementById("wormAadDecrypt");
+      const aadNote = document.getElementById("wormAadNote");
+      const fileInput = document.getElementById("wormEnvelopeFile");
+      const statusEl = document.getElementById("wormStatus");
+
+      if (!inEl || !pwEl || !aadEl) {
+        alert("Missing Wormhole elements in the page.");
+        return;
+      }
+      if (aadNote) aadNote.textContent = "";
+
+      let inputText = inEl.value.trim();
+      const password = pwEl.value;
+      const aadStr = aadEl.value.trim();
+
+      // Fallback: if the textarea is empty but a file is selected, read the JSON from the file
+      if (!inputText && fileInput && fileInput.files && fileInput.files[0]) {
+        try {
+          inputText = await fileInput.files[0].text();
+          inEl.value = inputText;
+        } catch (e) {
+          console.error(e);
+          alert("Failed to read the envelope file. Please try loading the JSON again.");
+          return;
+        }
+      }
+
+      if (!inputText) {
+        alert("Please paste or load a locked file envelope (JSON) to unlock.");
+        return;
+      }
+      if (!password) {
+        alert("Please enter the passphrase used to lock this file.");
+        return;
+      }
+
+      if (statusEl) {
+        statusEl.textContent = "Unlocking file... this may take some time for large files.";
+      }
+
+      try {
+        let envelope;
+        try {
+          envelope = JSON.parse(inputText);
+        } catch (err) {
+          throw new SyntaxError("The input is not valid JSON. Make sure you pasted the full envelope.");
+        }
+
+        if (envelope.version !== "1.0") {
+          throw new Error(
+            "This locked file envelope was created by a different or newer version of Aeon (" +
+            envelope.version +
+            "). This page only understands version 1.0."
+          );
+        }
+
+        const plaintextMeta = envelope.plaintext || {};
+        const filename =
+          plaintextMeta.filename ||
+          (plaintextMeta.filename_scrubbed ? "wormhole-output.bin" : "wormhole-output.bin");
+
+        const kdf = envelope.kdf || {};
+        const cipher = envelope.cipher || {};
+
+        if (!kdf.salt || !cipher.iv || !cipher.ciphertext) {
+          throw new Error("Envelope is missing salt, IV, or ciphertext.");
+        }
+        if (kdf.name !== "PBKDF2" || kdf.hash !== "SHA-256") {
+          throw new Error(
+            "Unsupported key-derivation settings in this envelope. It may have been created by a different Aeon version or another tool."
+          );
+        }
+        if (cipher.algo !== "AES-GCM") {
+          throw new Error(
+            "Unsupported cipher algorithm in this envelope (expected AES-GCM). It may have been created by a different Aeon version or another tool."
+          );
+        }
+
+        const salt = base64ToUint8Array(kdf.salt);
+        const iv = base64ToUint8Array(cipher.iv);
+        const ciphertext = base64ToUint8Array(cipher.ciphertext);
+
+        let aadBytes = null;
+        const enc = new TextEncoder();
+        if (cipher.aad) {
+          if (!aadStr) {
+            if (aadNote) {
+              aadNote.textContent =
+                "This locked file was created with context (AAD). Enter the same text used when locking.";
+            }
+            throw new Error("This envelope expects context (AAD), but none was provided.");
+          }
+          aadBytes = enc.encode(aadStr);
+        } else if (aadStr && !cipher.aad) {
+          if (aadNote) {
+            aadNote.textContent =
+              "This locked file was created without context (AAD). Any text here will be ignored.";
+          }
+        }
+
+        const iterations = kdf.iterations || getIterations();
+        const keyMaterial = await getKeyMaterial(password);
+        const key = await deriveKey(keyMaterial, salt, iterations, "SHA-256", KEY_LENGTH_BITS);
+
+        const algo = { name: "AES-GCM", iv };
+        if (aadBytes) {
+          algo.additionalData = aadBytes;
+        }
+
+        const plainBuf = await crypto.subtle.decrypt(algo, key, ciphertext);
+        const blob = new Blob([plainBuf]);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename || "wormhole-output.bin";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        if (statusEl) {
+          statusEl.textContent = "";
+        }
+
+        recordLastKdfUsage(iterations, "Wormhole file");
+
+        wipeUint8Array(salt);
+        wipeUint8Array(iv);
+        wipeUint8Array(ciphertext);
+        if (aadBytes) wipeUint8Array(aadBytes);
+        wipeUint8Array(new Uint8Array(plainBuf));
+      } catch (e) {
+        console.error(e);
+        let msg;
+        if (e instanceof SyntaxError) {
+          msg = e.message;
+        } else if (e.name === "OperationError" || e instanceof DOMException) {
+          msg =
+            "Unlocking (decryption) failed.\n\n" +
+            "This usually means:\n" +
+            "- The passphrase is incorrect, or\n" +
+            "- The envelope was changed or damaged, or\n" +
+            "- The context (AAD) does not match.";
+        } else {
+          msg = "Unlocking error: " + e.message;
+        }
+        alert(msg);
+        if (statusEl) {
+          statusEl.textContent = "File unlock failed. Please check your passphrase, context, or envelope.";
+        }
+      }
+    }
+
+    // ---- Passphrase Forge ----
+    function generatePassphrase(count) {
+      if (!window.crypto || !window.crypto.getRandomValues) {
+        alert("Secure random generator is not available in this browser.");
+        return;
+      }
+      const indices = new Uint32Array(count);
+      crypto.getRandomValues(indices);
+      const words = [];
+      for (let i = 0; i < count; i++) {
+        const idx = indices[i] % PASSPHRASE_WORDLIST.length;
+        words.push(PASSPHRASE_WORDLIST[idx]);
+      }
+      const pw = words.join(" ");
+      const outEl = document.getElementById("passphraseOutput");
+      if (outEl) outEl.value = pw;
+    }
+
+    function sendPassphraseToMessenger() {
+      const src = document.getElementById("passphraseOutput");
+      const target = document.getElementById("msgPasswordEncrypt");
+      if (!src || !target) return;
+      target.value = src.value;
+      const hint = document.getElementById("msgPwEncryptHint");
+      if (hint) hint.textContent = estimateStrength(target.value);
+      if (typeof checkPassphraseReuse === "function") {
+        checkPassphraseReuse();
+      }
+    }
+
+    function sendPassphraseToWormhole() {
+      const src = document.getElementById("passphraseOutput");
+      const target = document.getElementById("wormPasswordEncrypt");
+      if (!src || !target) return;
+      target.value = src.value;
+      const hint = document.getElementById("wormPwEncryptHint");
+      if (hint) hint.textContent = estimateStrength(target.value);
+      if (typeof checkPassphraseReuse === "function") {
+        checkPassphraseReuse();
+      }
+    }
+
+    // ---- File Integrity ----
+    async function computeFileHash() {
+      const fileInput = document.getElementById("hashFileInput");
+      const outEl = document.getElementById("hashOutput");
+      if (!fileInput || !outEl) {
+        alert("Missing File Integrity elements in the page.");
+        return;
+      }
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please choose a file to fingerprint.");
+        return;
+      }
+      const buf = await file.arrayBuffer();
+      const hashBuf = await crypto.subtle.digest("SHA-256", buf);
+      const hashBytes = new Uint8Array(hashBuf);
+      const hex = Array.from(hashBytes)
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+      outEl.value = hex;
+    }
+
+    function compareHashes() {
+      const actualEl = document.getElementById("hashOutput");
+      const expectedEl = document.getElementById("expectedHash");
+      const resultEl = document.getElementById("hashCompareResult");
+      if (!actualEl || !expectedEl || !resultEl) {
+        alert("Missing File Integrity elements in the page.");
+        return;
+      }
+      const actual = actualEl.value.trim().toLowerCase();
+      const expected = expectedEl.value.trim().toLowerCase();
+      if (!actual) {
+        resultEl.value = "No computed fingerprint to compare yet.";
+        return;
+      }
+      if (!expected) {
+        resultEl.value = "No expected fingerprint provided.";
+        return;
+      }
+      if (actual === expected) {
+        resultEl.value = "Match ✓ – file fingerprint matches the expected value.";
+      } else {
+        resultEl.value = "Mismatch ✗ – fingerprints do not match.";
+      }
+    }
+
+    // ---- Diagnostics ----
+   async function runSelfTest() {
+  const outEl = document.getElementById("diagOutput");
+  if (!outEl) return;
+
+  outEl.value = "";
+
+  try {
+    outEl.value += "Starting self-test…\n\n";
+
+    if (!window.crypto || !window.crypto.subtle) {
+      outEl.value +=
+        "Web Crypto API not available. This browser cannot run Aeon securely.\n";
+      outEl.value += "\nResult: ⚠️ This browser is not suitable for Aeon.\n";
+      return;
+    } else {
+      outEl.value += "Web Crypto API detected.\n";
+    }
+
+    const password = "test-passphrase";
+    const enc = new TextEncoder();
+    const keyMaterial = await getKeyMaterial(password);
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iterations = getIterations();
+
+    outEl.value += `Deriving key with PBKDF2-SHA256 (${iterations} iterations)…\n`;
+    const key = await deriveKey(
+      keyMaterial,
+      salt,
+      iterations,
+      "SHA-256",
+      KEY_LENGTH_BITS
+    );
+    outEl.value += "Key derived.\n";
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const testData = enc.encode("Aeon self-test data");
+    const algo = { name: "AES-GCM", iv };
+
+    outEl.value += "Encrypting test payload with AES-GCM…\n";
+    const ct = await crypto.subtle.encrypt(algo, key, testData);
+    outEl.value += "Ciphertext produced.\n";
+
+    outEl.value += "Attempting decryption…\n";
+    const decBuf = await crypto.subtle.decrypt(algo, key, ct);
+    const decText = new TextDecoder().decode(decBuf);
+
+    if (decText === "Aeon self-test data") {
+      outEl.value += "Decryption OK: plaintext matches expected value.\n";
+      outEl.value +=
+        "\nResult: ✅ This browser appears capable of running Aeon’s crypto correctly.\n";
+    } else {
+      outEl.value +=
+        "Decryption FAILED: decrypted plaintext does not match expected value.\n";
+      outEl.value +=
+        "\nResult: ⚠️ Something is wrong with this browser’s crypto implementation.\n";
+    }
+  } catch (err) {
+    outEl.value += `Self-test error: ${
+      err && err.message ? err.message : err
+    }\n`;
+    outEl.value +=
+      "\nResult: ⚠️ Self-test failed. Treat this browser as untrusted for Aeon.\n";
+  }
+}
+    // ---- Nuke all ----
+    function nukeAll() {
+    const ids = [
+    "plainText",
+    "msgCipherText",
+    "msgPlainOutput",
+    "msgPasswordEncrypt",
+    "msgPasswordDecrypt",
+    "msgAad",
+    "msgAadEncrypt",
+    "wormEnvelopeText",
+    "wormPasswordEncrypt",
+    "wormPasswordDecrypt",
+    "wormAadEncrypt",
+    "wormAadDecrypt",
+    "passphraseOutput",
+    "hashOutput",
+    "expectedHash",
+    "hashCompareResult",
+    "diagOutput",
+    "vaultPassword",
+    "vaultEntryTitle",
+    "vaultEntryContent",
+    "vaultPreviewBody"
+  ];
+
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  const hintIds = [
+    "msgPwEncryptHint",
+    "msgPwDecryptHint",
+    "wormPwEncryptHint",
+    "wormPwDecryptHint",
+    "msgAadNote",
+    "wormAadNote"
+  ];
+
+  hintIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "";
+  });
+
+  const fileInputs = [
+    "wormFile",
+    "wormEnvelopeFile",
+    "hashFileInput",
+    "vaultJsonFile",
+    "vaultFileInput"
+  ];
+
+  fileInputs.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.value = "";
+    }
+  });
+
+  const wormScrub = document.getElementById("wormScrubFilename");
+  if (wormScrub) wormScrub.checked = false;
+
+  // Also clear MicroVault state so that the global nuke button resets every tool. This
+  // duplicates the logic in the MicroVault-specific nuke handler to ensure nothing
+  // remains in memory after a full nuke.
+  try {
+    lockSelectedFiles = [];
+    if (lockFilesInput) lockFilesInput.value = "";
+    if (typeof renderLockList === "function") renderLockList();
+    if (lockStatus) {
+      lockStatus.textContent = "";
+      lockStatus.className = "status";
+    }
+    if (lockTotal) lockTotal.textContent = "";
+    if (scrubNamesInput) scrubNamesInput.checked = false;
+    if (lockPassInput) {
+      lockPassInput.value = "";
+      lockPassInput.type = "password";
+    }
+    if (toggleLockPassBtn) toggleLockPassBtn.textContent = "Show";
+    if (lockPassStrength) {
+      lockPassStrength.textContent = "";
+      lockPassStrength.className = "status";
+    }
+    lastVaultJson = "";
+    if (vaultJsonOutput) vaultJsonOutput.value = "";
+    if (vaultHashDiv) vaultHashDiv.textContent = "";
+    if (vaultExtra) vaultExtra.style.display = "none";
+    if (unlockVaultInput) unlockVaultInput.value = "";
+    if (unlockPassInput) {
+      unlockPassInput.value = "";
+      unlockPassInput.type = "password";
+    }
+    if (toggleUnlockPassBtn) toggleUnlockPassBtn.textContent = "Show";
+    if (unlockStatus) {
+      unlockStatus.textContent = "";
+      unlockStatus.className = "status";
+    }
+    if (unlockList) {
+      unlockList.innerHTML = "";
+      unlockList.style.display = "none";
+    }
+    unlockedFiles = [];
+    downloadAllIndex = 0;
+    if (downloadAllBtn) {
+      downloadAllBtn.style.display = "none";
+      downloadAllBtn.textContent = "Download all files";
+    }
+  } catch (err) {
+    console.warn("MicroVault state could not be fully cleared in nukeAll", err);
+  }
+
+  // Clear in-memory vault state too
+  vaultResetState();
+
+  // Also clear any passphrase reuse warnings
+  const reuseEls = document.querySelectorAll(".pwReuseWarning");
+  reuseEls.forEach(el => {
+    el.style.display = "none";
+  });
+
+  alert(
+    "All visible text fields have been cleared from this session.\n\n" +
+    "This does not delete any files on your disk or any JSON you have already saved."
+  );
+}
+    // ---- Vault (file-based) ----
+    const VAULT_FORMAT_VERSION = "AeonVault-1";
+
+    let vaultState = {
+      entries: [],
+      loadedFromFileName: null,
+      lastSavedAt: null,
+      createdAt: null
+    };
+
+    let vaultHasUnsavedChanges = false;
+
+    function vaultResetState() {
+      vaultState = {
+        entries: [],
+        loadedFromFileName: null,
+        lastSavedAt: null,
+        createdAt: null
+      };
+      vaultHasUnsavedChanges = false;
+      updateVaultUi();
+    }
+
+    function updateVaultUi() {
+      const statusEl = document.getElementById("vaultStatusText");
+      const listEl = document.getElementById("vaultEntriesList");
+      const previewTitle = document.getElementById("vaultPreviewTitle");
+      const previewBody = document.getElementById("vaultPreviewBody");
+      if (statusEl) {
+        const count = vaultState.entries.length;
+        let statusMsg = "";
+
+        if (count === 0) {
+          statusMsg = "Empty vault – add some entries below.";
+        } else if (vaultHasUnsavedChanges) {
+          statusMsg = `⚠️ ${count} ${count === 1 ? "entry" : "entries"} – UNSAVED CHANGES`;
+        } else if (vaultState.loadedFromFileName) {
+          statusMsg = `✓ ${count} ${count === 1 ? "entry" : "entries"} – saved as ${vaultState.loadedFromFileName}`;
+        } else {
+          statusMsg = `${count} ${count === 1 ? "entry" : "entries"} – ready to save to disk`;
+        }
+
+        statusEl.textContent = statusMsg;
+      }
+      if (listEl) {
+        if (!vaultState.entries.length) {
+          listEl.innerHTML =
+            '<div class="vault-entry-row">' +
+            '<div class="vault-entry-main">' +
+            '<div class="vault-entry-title">No entries yet.</div>' +
+            '<div class="vault-entry-meta">Add entries, then save the vault as a locked file.</div>' +
+            "</div></div>";
+        } else {
+          const rows = vaultState.entries.map((e, idx) => {
+            const date = new Date(e.createdAt || Date.now());
+            const pretty = date.toLocaleString();
+            const safeTitle = (e.title || "(untitled)").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const importedFlag = e.meta && e.meta.importedFromJsonFile ? " · JSON" : "";
+            return `
+              <div class="vault-entry-row">
+                <div class="vault-entry-main">
+                  <div class="vault-entry-title">#${idx + 1} · ${safeTitle}${importedFlag}</div>
+                  <div class="vault-entry-meta">${pretty}</div>
+                </div>
+                <div class="vault-entry-actions">
+                  <button type="button" onclick="vaultViewEntry(${idx})">View</button>
+                  <button type="button" class="ghost" onclick="vaultDeleteEntry(${idx})">Delete</button>
+                </div>
+              </div>
+            `;
+          }).join("");
+          listEl.innerHTML = rows;
+        }
+      }
+      if (previewTitle && !vaultState.entries.length) {
+        previewTitle.textContent = "No entry selected.";
+      }
+      if (previewBody && !vaultState.entries.length) {
+        previewBody.value = "";
+      }
+    }
+
+    function vaultNew() {
+      if (vaultState.entries.length > 0) {
+        const ok = confirm(
+          "This will clear the current in-memory vault entries.\n\n" +
+          "It does not delete any vault files you have already saved.\n\n" +
+          "Continue?"
+        );
+        if (!ok) return;
+      }
+      vaultResetState();
+    }
+
+    function vaultClearEntryForm() {
+      const t = document.getElementById("vaultEntryTitle");
+      const b = document.getElementById("vaultEntryContent");
+      if (t) t.value = "";
+      if (b) b.value = "";
+    }
+
+    function vaultAddEntry() {
+      const t = document.getElementById("vaultEntryTitle");
+      const b = document.getElementById("vaultEntryContent");
+      if (!t || !b) return;
+      const title = t.value.trim();
+      const body = b.value;
+      if (!title && !body) {
+        alert("Nothing to add. Please provide a title, some content, or both.");
+        return;
+      }
+      const now = new Date().toISOString();
+      vaultState.entries.push({
+        title: title || "(untitled)",
+        body,
+        createdAt: now,
+        updatedAt: now,
+        meta: { importedFromJsonFile: false }
+      });
+      if (!vaultState.createdAt) {
+        vaultState.createdAt = now;
+      }
+      vaultHasUnsavedChanges = true;
+      vaultClearEntryForm();
+      updateVaultUi();
+    }
+
+    function vaultViewEntry(index) {
+      const entry = vaultState.entries[index];
+      if (!entry) return;
+      const previewTitle = document.getElementById("vaultPreviewTitle");
+      const previewBody = document.getElementById("vaultPreviewBody");
+      if (previewTitle) {
+        previewTitle.textContent = entry.title || "(untitled)";
+      }
+      if (previewBody) {
+        previewBody.value = entry.body || "";
+      }
+    }
+
+    async function vaultCopyPreview() {
+      const bodyEl = document.getElementById("vaultPreviewBody");
+      if (!bodyEl) {
+        alert("Vault preview area not found.");
+        return;
+      }
+
+      const text = bodyEl.value;
+      if (!text) {
+        alert("No entry selected or the selected entry is empty.");
+        return;
+      }
+
+      // Preferred: modern clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          alert("Entry copied to clipboard.");
+          return;
+        } catch (err) {
+          console.error("Clipboard write failed, falling back:", err);
+        }
+      }
+
+      // Fallback: select text and try execCommand
+      bodyEl.focus();
+      bodyEl.select();
+      try {
+        const ok = document.execCommand("copy");
+        if (ok) {
+          alert("Entry copied to clipboard (fallback).");
+        } else {
+          alert(
+            "Could not copy automatically. You can press Ctrl/Cmd+C while the text is selected."
+          );
+        }
+      } catch (err) {
+        console.error("execCommand copy failed:", err);
+        alert(
+          "Could not copy automatically. You can press Ctrl/Cmd+C while the text is selected."
+        );
+      }
+    }
+
+    function vaultDownloadPreview() {
+      const bodyEl = document.getElementById("vaultPreviewBody");
+      const titleEl = document.getElementById("vaultPreviewTitle");
+
+      if (!bodyEl || !titleEl) {
+        alert("Vault preview area not found.");
+        return;
+      }
+
+      const text = bodyEl.value;
+      if (!text) {
+        alert("No entry selected or the selected entry is empty.");
+        return;
+      }
+
+      const rawTitle = titleEl.textContent || "vault-entry";
+      const safeTitle = rawTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      const filename = (safeTitle || "vault-entry") + ".txt";
+
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 0);
+    }
+
+    function vaultDeleteEntry(index) {
+      const entry = vaultState.entries[index];
+      if (!entry) return;
+      const ok = confirm(
+        `Delete entry "${entry.title || "(untitled)"}"?\n\n` +
+        "This removes it from the in-memory vault. " +
+        "Any vault files you have already saved will not be changed."
+      );
+      if (!ok) return;
+      vaultState.entries.splice(index, 1);
+      vaultHasUnsavedChanges = true;
+      updateVaultUi();
+    }
+
+    function vaultLoadClick() {
+      const input = document.getElementById("vaultFileInput");
+      if (!input) return;
+      input.value = "";
+      input.click();
+    }
+
+    function vaultFileInputChanged(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      vaultLoadFromFile(file);
+    }
+
+    async function vaultLoadFromFile(file) {
+      const pwEl = document.getElementById("vaultPassword");
+      if (!pwEl) {
+        alert("Missing vault passphrase field.");
+        return;
+      }
+      const password = pwEl.value;
+      if (!password) {
+        alert("Enter the vault master passphrase before loading the file.");
+        return;
+      }
+      if (password.length < 12) {
+        const cont = confirm(
+          "This vault passphrase is quite short. Short passwords are easier to guess.\n\n" +
+          "Do you still want to continue with this passphrase?"
+        );
+        if (!cont) return;
+      }
+
+      const text = await file.text();
+      let envelope;
+      try {
+        envelope = JSON.parse(text);
+      } catch (e) {
+        alert("Selected file is not valid JSON.");
+        return;
+      }
+
+      try {
+        const kdf = envelope.kdf || {};
+        const cipher = envelope.cipher || {};
+        if (!kdf.salt || !cipher.iv || !cipher.ciphertext) {
+          throw new Error("Vault envelope is missing salt, IV, or ciphertext.");
+        }
+        if (kdf.name !== "PBKDF2" || kdf.hash !== "SHA-256") {
+          throw new Error(
+            "Unsupported key-derivation settings in this vault file. It may have been created by a different Aeon version or another tool."
+          );
+        }
+        if (cipher.algo !== "AES-GCM") {
+          throw new Error(
+            "Unsupported cipher algorithm in this vault file (expected AES-GCM). It may have been created by a different Aeon version or another tool."
+          );
+        }
+
+        const saltBytes = base64ToUint8Array(kdf.salt);
+        const ivBytes = base64ToUint8Array(cipher.iv);
+        const ctBytes = base64ToUint8Array(cipher.ciphertext);
+
+        const iterations = kdf.iterations || getIterations();
+        const keyMaterial = await getKeyMaterial(password);
+        const key = await deriveKey(keyMaterial, saltBytes, iterations, "SHA-256", KEY_LENGTH_BITS);
+
+        const algo = { name: "AES-GCM", iv: ivBytes };
+        const decBuf = await crypto.subtle.decrypt(algo, key, ctBytes);
+        const decText = new TextDecoder().decode(decBuf);
+
+        let vaultPayload;
+        try {
+          vaultPayload = JSON.parse(decText);
+        } catch (e) {
+          throw new Error("Vault inner content is not valid JSON.");
+        }
+        if (vaultPayload.version !== VAULT_FORMAT_VERSION) {
+          throw new Error(
+            "This vault file was created by a different or newer version of Aeon (" +
+            vaultPayload.version +
+            "). This page only understands " +
+            VAULT_FORMAT_VERSION +
+            "."
+          );
+        }
+
+        vaultState.entries = Array.isArray(vaultPayload.entries) ? vaultPayload.entries : [];
+        vaultState.createdAt = vaultPayload.createdAt || vaultPayload.created_at || null;
+        vaultState.lastSavedAt = envelope.created_at || new Date().toISOString();
+        vaultState.loadedFromFileName = file.name || null;
+
+        recordLastKdfUsage(iterations, "Vault");
+
+        vaultHasUnsavedChanges = false;
+        updateVaultUi();
+
+        const pwElAfter = document.getElementById("vaultPassword");
+        if (pwElAfter && !pwElAfter.value) {
+          pwElAfter.value = password;
+        }
+
+        alert(
+          `✓ Vault opened successfully.\n\n` +
+          `Loaded ${vaultState.entries.length} ${vaultState.entries.length === 1 ? "entry" : "entries"}.\n` +
+          "Your passphrase is still in the field so you can save changes."
+        );
+
+        wipeUint8Array(saltBytes);
+        wipeUint8Array(ivBytes);
+        wipeUint8Array(ctBytes);
+      } catch (e) {
+        console.error(e);
+        alert(
+          "Failed to open vault: " + e.message + "\n\n" +
+          "This usually means the passphrase is wrong or the file is corrupted, or it was created by a different Aeon version."
+        );
+      }
+    }
+
+    async function vaultSave() {
+      const pwEl = document.getElementById("vaultPassword");
+      if (!pwEl) {
+        alert("Missing vault passphrase field.");
+        return;
+      }
+      const password = pwEl.value;
+      if (!password) {
+        alert("Enter a master passphrase to protect this vault before saving.");
+        return;
+      }
+      if (password.length < 12) {
+        const cont = confirm(
+          "This vault passphrase is quite short. Short passwords are easier to guess.\n\n" +
+          "Do you still want to save the vault with this passphrase?"
+        );
+        if (!cont) return;
+      }
+
+      const iterations = getIterations();
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+
+      const now = new Date().toISOString();
+      const payload = {
+        version: VAULT_FORMAT_VERSION,
+        createdAt: vaultState.createdAt || now,
+        updatedAt: now,
+        entries: vaultState.entries
+      };
+
+      const enc = new TextEncoder();
+      const payloadBytes = enc.encode(JSON.stringify(payload));
+
+      try {
+        const keyMaterial = await getKeyMaterial(password);
+        const key = await deriveKey(keyMaterial, salt, iterations, "SHA-256", KEY_LENGTH_BITS);
+
+        const algo = { name: "AES-GCM", iv };
+        const ciphertextBuf = await crypto.subtle.encrypt(algo, key, payloadBytes);
+
+        const envelope = {
+          version: "1.0",
+          created_at: now,
+          purpose: "Aeon Vault file",
+          plaintext: {
+            type: "application/vnd.aeon-vault+json",
+            encoding: "utf-8"
+          },
+          kdf: {
+            name: "PBKDF2",
+            hash: "SHA-256",
+            iterations,
+            salt: bufToBase64(salt)
+          },
+          cipher: {
+            algo: "AES-GCM",
+            key_bits: KEY_LENGTH_BITS,
+            iv: bufToBase64(iv),
+            aad: null,
+            ciphertext: bufToBase64(ciphertextBuf)
+          }
+        };
+
+        const blob = new Blob([JSON.stringify(envelope, null, 2)], {
+          type: "application/json"
+        });
+
+        const d = new Date();
+        const pad = n => String(n).padStart(2, "0");
+        const fname =
+          `aeon-vault-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-` +
+          `${pad(d.getHours())}${pad(d.getMinutes())}.enc.json`;
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        vaultState.lastSavedAt = now;
+        vaultState.loadedFromFileName = fname;
+        vaultHasUnsavedChanges = false;
+        updateVaultUi();
+
+        alert("✓ Vault saved successfully to disk.");
+
+        wipeUint8Array(salt);
+        wipeUint8Array(iv);
+        wipeUint8Array(new Uint8Array(ciphertextBuf));
+        wipeUint8Array(new Uint8Array(payloadBytes));
+      } catch (e) {
+        console.error(e);
+        alert("Vault save failed: " + e.message);
+      }
+    }
+
+    async function vaultImportJson() {
+      const input = document.getElementById("vaultJsonFile");
+      if (!input) {
+        alert("Missing JSON file input for vault.");
+        return;
+      }
+      const file = input.files && input.files[0];
+      if (!file) {
+        alert("Please choose a JSON file to add as an entry.");
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        let pretty = text;
+        try {
+          const parsed = JSON.parse(text);
+          pretty = JSON.stringify(parsed, null, 2);
+        } catch {
+          // If it isn't valid JSON, just store raw text.
+        }
+
+        const now = new Date().toISOString();
+        vaultState.entries.push({
+          title: file.name || "JSON entry",
+          body: pretty,
+          createdAt: now,
+          updatedAt: now,
+          meta: {
+            importedFromJsonFile: true,
+            fileName: file.name || null
+          }
+        });
+        if (!vaultState.createdAt) {
+          vaultState.createdAt = now;
+        }
+
+        vaultHasUnsavedChanges = true;
+        input.value = "";
+        updateVaultUi();
+      } catch (e) {
+        console.error(e);
+        alert("Could not read or import the JSON file: " + e.message);
+      }
+    }
+
+    // Copy all vault entries as formatted JSON to the clipboard. This provides a quick
+    // human-readable backup of the in-memory vault. Note: this does not include the
+    // vault passphrase or metadata such as iteration count.
+    function vaultCopyAllEntries() {
+      try {
+        const entries = vaultState.entries || [];
+        if (!entries.length) {
+          alert("There are no entries in this vault to copy.");
+          return;
+        }
+        const text = JSON.stringify(entries, null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            () => alert("All entries copied to clipboard as JSON."),
+            () => alert("Failed to copy entries to clipboard.")
+          );
+        } else {
+          alert("Clipboard access is unavailable. Entries JSON:\n\n" + text);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Could not copy entries: " + (err.message || err));
+      }
+    }
+
+    // ---- Extra: Copy unlocked message helper ----
+    function copyUnlockedMessage() {
+      const outEl = document.getElementById("msgPlainOutput");
+      if (!outEl) {
+        alert("No unlocked message output box found.");
+        return;
+      }
+      const text = outEl.value;
+      if (!text.trim()) {
+        alert("There is no unlocked message to copy yet.");
+        return;
+      }
+      if (!navigator.clipboard) {
+        alert("Clipboard access is not available in this browser.");
+        return;
+      }
+      navigator.clipboard.writeText(text).then(
+        () => alert("Unlocked message copied to clipboard."),
+        () => alert("Failed to copy unlocked message.")
+      );
+    }
+
+    window.addEventListener("beforeunload", (e) => {
+      if (vaultHasUnsavedChanges && vaultState.entries.length > 0) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
+    // ---- Init ----
+    function initAeon() {
+      if (!window.crypto || !window.crypto.subtle) {
+        alert(
+          "Web Crypto API is not available in this browser.\n\n" +
+          "Aeon Secure Suite cannot run safely here. Please use a modern browser on a trusted device."
+        );
+      }
+      const protocol = window.location.protocol;
+      if (!(protocol === "file:" || protocol === "https:")) {
+        alert(
+          "Security note:\n\n" +
+          "For best privacy, open this Aeon HTML file locally (file://) or over HTTPS on a trusted device.\n" +
+          "Avoid running it over plain HTTP."
+        );
+      }
+      hookPasswordHints();
+      // Run browser feature detection after hooking password hints
+      if (typeof checkBrowserFeatures === "function") {
+        checkBrowserFeatures();
+      }
+      const vf = document.getElementById("vaultFileInput");
+      if (vf) {
+        vf.addEventListener("change", vaultFileInputChanged);
+      }
+      updateVaultUi();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initAeon);
+    } else {
+      initAeon();
+    }
+  
+  document.addEventListener("DOMContentLoaded", initPassphraseReuseWarning);
+
+
+
+    // ---- Aeon MicroVault v1.7 integration ----
+
+  const enc = new TextEncoder();
+  const dec = new TextDecoder();
+
+  function bufToBase64(buf) {
+    const bytes = new Uint8Array(buf);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  function base64ToBuf(base64) {
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  async function deriveAesKey(passphrase, salt, iterations) {
+    const baseKey = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(passphrase),
+      { name: "PBKDF2" },
+      false,
+      ["deriveKey"]
+    );
+    return crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        hash: "SHA-256",
+        salt,
+        iterations
+      },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function encryptTextToEnvelope(plainText, passphrase) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv   = crypto.getRandomValues(new Uint8Array(12));
+    const iterations = 300000;
+
+    const key = await deriveAesKey(passphrase, salt, iterations);
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      key,
+      enc.encode(plainText)
+    );
+
+    return {
+      v: 1,
+      t: "aeon-file-vault",
+      cipher: "AES-256-GCM",
+      kdf: {
+        name: "PBKDF2",
+        hash: "SHA-256",
+        it: iterations,
+        salt: bufToBase64(salt)
+      },
+      iv: bufToBase64(iv),
+      ct: bufToBase64(ciphertext)
+    };
+  }
+
+  async function decryptEnvelopeToText(env, passphrase) {
+    if (!env || env.t !== "aeon-file-vault") {
+      throw new Error("Not an Aeon file-vault envelope");
+    }
+    const salt = new Uint8Array(base64ToBuf(env.kdf.salt));
+    const iv   = new Uint8Array(base64ToBuf(env.iv));
+    const key  = await deriveAesKey(passphrase, salt, env.kdf.it);
+    const ct   = base64ToBuf(env.ct);
+    const plainBuf = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv },
+      key,
+      ct
+    );
+    return dec.decode(plainBuf);
+  }
+
+  async function sha256Hex(str) {
+    const buf = await crypto.subtle.digest("SHA-256", enc.encode(str));
+    const bytes = new Uint8Array(buf);
+    let hex = "";
+    for (let i = 0; i < bytes.length; i++) {
+      hex += bytes[i].toString(16).padStart(2, "0");
+    }
+    return hex;
+  }
+
+  function fmtSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    const kb = bytes / 1024;
+    if (kb < 1024) return kb.toFixed(1) + " KB";
+    const mb = kb / 1024;
+    return mb.toFixed(2) + " MB";
+  }
+
+  function makeScrubbedName(original, index) {
+    const dot = original.lastIndexOf(".");
+    let ext = "";
+    if (dot > 0 && dot < original.length - 1) {
+      ext = original.slice(dot);
+    }
+    return "file-" + (index + 1) + ext;
+  }
+
+  function assessPassphraseScore(p) {
+    if (!p) return 0;
+    let score = 0;
+    if (p.length >= 8) score++;
+    if (p.length >= 12) score++;
+    const hasLower = /[a-z]/.test(p);
+    const hasUpper = /[A-Z]/.test(p);
+    const hasDigit = /\d/.test(p);
+    const hasSymbol = /[^A-Za-z0-9]/.test(p);
+    const variety = (hasLower + hasUpper + hasDigit + hasSymbol);
+    if (variety >= 2) score++;
+    if (variety >= 3) score++;
+    return score;
+  }
+
+  const lockFilesInput   = document.getElementById("lock-files");
+  const lockDropZone     = document.getElementById("lock-drop");
+  const lockPassInput    = document.getElementById("lock-pass");
+  const lockPassStrength = document.getElementById("lock-pass-strength");
+  if (lockPassInput && lockPassStrength) {
+    lockPassInput.addEventListener("input", () => {
+      const strength = estimateStrength(lockPassInput.value || "");
+      lockPassStrength.textContent = strength;
+      const meter = document.getElementById("lockPassMeter");
+      updateStrengthMeter(meter, strength);
+    });
+  }
+
+  const scrubNamesInput  = document.getElementById("scrub-names");
+  const lockBtn          = document.getElementById("btn-lock");
+  const clearBtn         = document.getElementById("btn-clear");
+  const lockStatus       = document.getElementById("lock-status");
+  const lockList         = document.getElementById("lock-list");
+  const lockTotal        = document.getElementById("lock-total");
+
+  const vaultExtra       = document.getElementById("vault-extra");
+  const vaultHashDiv     = document.getElementById("vault-hash");
+  const vaultJsonOutput  = document.getElementById("vault-json-output");
+  const copyJsonBtn      = document.getElementById("btn-copy-json");
+  const clearJsonBtn     = document.getElementById("btn-clear-json");
+
+  const unlockVaultInput = document.getElementById("unlock-vault");
+  const unlockPassInput  = document.getElementById("unlock-pass");
+  const unlockBtn        = document.getElementById("btn-unlock");
+  const unlockStatus     = document.getElementById("unlock-status");
+  const unlockList       = document.getElementById("unlock-list");
+  const downloadAllBtn   = document.getElementById("btn-download-all");
+
+  const toggleLockPassBtn   = document.getElementById("toggle-lock-pass");
+  const toggleUnlockPassBtn = document.getElementById("toggle-unlock-pass");
+
+  const nukeBtn             = document.getElementById("btn-nuke");
+
+  let lockSelectedFiles = [];
+  let lastVaultJson = "";
+  let unlockedFiles = [];
+  let downloadAllIndex = 0;
+
+  function renderLockList() {
+    lockList.innerHTML = "";
+    if (!lockSelectedFiles.length) {
+      lockList.style.display = "none";
+      lockTotal.textContent = "";
+      return;
+    }
+    lockList.style.display = "block";
+    let totalBytes = 0;
+    lockSelectedFiles.forEach(f => {
+      totalBytes += f.size;
+      const row = document.createElement("div");
+      row.className = "file-row";
+
+      const left = document.createElement("div");
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "file-name";
+      nameDiv.textContent = f.name;
+      const meta = document.createElement("div");
+      meta.className = "file-meta";
+      meta.textContent = (f.type || "application/octet-stream") + " · " + fmtSize(f.size);
+      left.appendChild(nameDiv);
+      left.appendChild(meta);
+
+      row.appendChild(left);
+      lockList.appendChild(row);
+    });
+    lockTotal.textContent = "Total size: " + fmtSize(totalBytes) + " (limit: 25 MB)";
+  }
+
+  // When the user picks files via the MicroVault file picker, append them to the existing
+  // selection instead of replacing it. This allows multiple batches of files to be added
+  // sequentially. Duplicate files (same name, size and lastModified) are ignored.
+  lockFilesInput.addEventListener("change", () => {
+    const newFiles = Array.from(lockFilesInput.files || []);
+    newFiles.forEach(f => {
+      if (!lockSelectedFiles.some(existing =>
+        existing.name === f.name &&
+        existing.size === f.size &&
+        existing.lastModified === f.lastModified
+      )) {
+        lockSelectedFiles.push(f);
+      }
+    });
+    renderLockList();
+    // Clear the input value so selecting the same file again triggers another change event.
+    lockFilesInput.value = "";
+  });
+
+  ["dragenter","dragover"].forEach(evt => {
+    lockDropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      lockDropZone.classList.add("dragover");
+    });
+  });
+
+  ["dragleave","drop"].forEach(evt => {
+    lockDropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (evt === "dragleave" && e.target !== lockDropZone) return;
+      lockDropZone.classList.remove("dragover");
+    });
+  });
+
+  lockDropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    lockDropZone.classList.remove("dragover");
+    const dtFiles = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+    if (!dtFiles.length) return;
+    lockSelectedFiles = lockSelectedFiles.concat(dtFiles);
+    renderLockList();
+    lockFilesInput.value = "";
+  });
+
+  clearBtn.addEventListener("click", () => {
+    lockSelectedFiles = [];
+    lockFilesInput.value = "";
+    renderLockList();
+    lockStatus.textContent = "File list cleared.";
+    lockStatus.className = "status ok";
+  });
+
+  lockPassInput.addEventListener("input", () => {
+    const p = lockPassInput.value || "";
+    lockPassStrength.className = "status";
+    if (!p) {
+      lockPassStrength.textContent = "";
+      return;
+    }
+    // Use the shared estimateStrength helper for consistent feedback across tools
+    const advice = estimateStrength(p);
+    lockPassStrength.textContent = advice;
+    if (advice.startsWith("Weak")) {
+      lockPassStrength.classList.add("error");
+    } else {
+      lockPassStrength.classList.add("ok");
+    }
+  });
+
+  function togglePassVisibility(inputEl, btnEl) {
+    if (!inputEl || !btnEl) return;
+    if (inputEl.type === "password") {
+      inputEl.type = "text";
+      btnEl.textContent = "Hide";
+    } else {
+      inputEl.type = "password";
+      btnEl.textContent = "Show";
+    }
+  }
+
+  toggleLockPassBtn.addEventListener("click", () => {
+    togglePassVisibility(lockPassInput, toggleLockPassBtn);
+  });
+
+  toggleUnlockPassBtn.addEventListener("click", () => {
+    togglePassVisibility(unlockPassInput, toggleUnlockPassBtn);
+  });
+
+  copyJsonBtn.addEventListener("click", () => {
+    if (!lastVaultJson) {
+      alert("No vault has been created in this session yet.");
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastVaultJson).then(() => {
+        alert("Full vault JSON copied to clipboard.");
+      }).catch(err => {
+        console.error(err);
+        alert("Clipboard write failed. You can select and copy from the preview textarea instead.");
+      });
+    } else {
+      alert("Clipboard API not available in this environment. You can select and copy from the preview textarea.");
+    }
+  });
+
+  clearJsonBtn.addEventListener("click", () => {
+    vaultJsonOutput.value = "";
+    vaultExtra.style.display = "none";
+  });
+
+  lockBtn.addEventListener("click", async () => {
+    lockStatus.textContent = "";
+    lockStatus.className = "status";
+    vaultExtra.style.display = "none";
+    vaultJsonOutput.value = "";
+    vaultHashDiv.textContent = "";
+    lastVaultJson = "";
+
+    const files = lockSelectedFiles;
+    const pass  = lockPassInput.value || "";
+    const scrub = scrubNamesInput.checked;
+
+    if (!files || !files.length) {
+      lockStatus.textContent = "Please choose or drop at least one file.";
+      lockStatus.classList.add("error");
+      return;
+    }
+    if (!pass) {
+      lockStatus.textContent = "Please enter a vault passphrase.";
+      lockStatus.classList.add("error");
+      return;
+    }
+
+    try {
+      let totalBytes = 0;
+      for (let i = 0; i < files.length; i++) {
+        totalBytes += files[i].size;
+      }
+      const maxBytes = 25 * 1024 * 1024;
+      if (totalBytes > maxBytes) {
+        lockStatus.textContent =
+          "Total file size (" + fmtSize(totalBytes) + ") is too large for this lite prototype. " +
+          "This tool is optimized for vaults up to about 25 MB. Try fewer or smaller files.";
+        lockStatus.classList.add("error");
+        return;
+      }
+
+      // Show a summary before processing so the user knows how many files and bytes
+      // will be encrypted. This is updated only once before reading buffers.
+      lockStatus.textContent =
+        "Locking vault with " + files.length + " file(s), total " + fmtSize(totalBytes) + ".";
+      const entries = [];
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const buf = await f.arrayBuffer();
+        const name = scrub ? makeScrubbedName(f.name, i) : f.name;
+        entries.push({
+          n: name,
+          s: f.size,
+          m: f.type || "application/octet-stream",
+          b: bufToBase64(buf)
+        });
+      }
+
+      const inner = {
+        v: 1,
+        created: new Date().toISOString(),
+        count: entries.length,
+        files: entries
+      };
+
+      lockStatus.textContent = "Encrypting vault…";
+      const env = await encryptTextToEnvelope(JSON.stringify(inner), pass);
+
+      const json = JSON.stringify(env);
+      lastVaultJson = json;
+
+      const hashHex = await sha256Hex(json);
+      vaultHashDiv.textContent = "Vault SHA-256: " + hashHex;
+      const previewLimit = 5000;
+      vaultJsonOutput.value = json.length > previewLimit
+        ? json.slice(0, previewLimit) + "\n[... truncated preview ...]"
+        : json;
+      vaultExtra.style.display = "block";
+
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const now = new Date();
+      const name = "file-vault-" +
+        now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0") + "-" +
+        String(now.getHours()).padStart(2, "0") +
+        String(now.getMinutes()).padStart(2, "0") +
+        ".enc.json";
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 500);
+
+      lockStatus.textContent =
+        "Vault locked (" + inner.files.length + " file(s)). Downloaded as \"" + name + "\".";
+      lockStatus.classList.add("ok");
+
+    } catch (err) {
+      console.error(err);
+      lockStatus.textContent = "Error while locking vault: " + (err.message || err);
+      lockStatus.classList.add("error");
+    }
+  });
+
+  if (downloadAllBtn) {
+    downloadAllBtn.style.display = "none";
+    downloadAllBtn.addEventListener("click", () => {
+      if (!unlockedFiles || !unlockedFiles.length) {
+        alert("No unlocked files are available to download.");
+        return;
+      }
+      if (downloadAllIndex >= unlockedFiles.length) {
+        alert("All files from this vault have already been downloaded in this session.");
+        return;
+      }
+      const e = unlockedFiles[downloadAllIndex];
+      try {
+        const buf = base64ToBuf(e.b);
+        const blob = new Blob([buf], { type: e.m || "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = e.n || ("file-" + (downloadAllIndex + 1));
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 500);
+      } catch (err2) {
+        console.error(err2);
+        alert("Error downloading one of the files: " + (err2.message || err2));
+        return;
+      }
+      downloadAllIndex++;
+      if (downloadAllIndex < unlockedFiles.length) {
+        downloadAllBtn.textContent =
+          "Download all files (next: " + (downloadAllIndex + 1) + " of " + unlockedFiles.length + ")";
+      } else {
+        downloadAllBtn.textContent = "Download all files (done)";
+      }
+    });
+  }
+
+  // Attach drag-and-drop handlers for Wormhole and Vault when the DOM is ready.
+  document.addEventListener("DOMContentLoaded", () => {
+    // Wormhole: allow a file to be dropped onto the drop zone to select it.
+    const wormDrop = document.getElementById("wormDrop");
+    if (wormDrop) {
+      ["dragenter", "dragover"].forEach(evt => {
+        wormDrop.addEventListener(evt, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          wormDrop.classList.add("drag-over");
+        });
+      });
+      ["dragleave", "drop"].forEach(evt => {
+        wormDrop.addEventListener(evt, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Only remove highlight when leaving the drop zone entirely or on drop.
+          if (evt === "dragleave" && e.target !== wormDrop) return;
+          wormDrop.classList.remove("drag-over");
+        });
+      });
+      wormDrop.addEventListener("drop", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        wormDrop.classList.remove("drag-over");
+        const dtFiles = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+        if (!dtFiles.length) return;
+        const file = dtFiles[0];
+        const fileInput = document.getElementById("wormFile");
+        if (fileInput) {
+          try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+          } catch (err) {
+            console.warn("Could not set wormhole file input via DataTransfer", err);
+          }
+        }
+      });
+    }
+
+    // Vault: drag & drop to load a locked vault file
+    const vaultLoadDrop = document.getElementById("vaultLoadDrop");
+    if (vaultLoadDrop) {
+      ["dragenter", "dragover"].forEach(evt => {
+        vaultLoadDrop.addEventListener(evt, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          vaultLoadDrop.classList.add("drag-over");
+        });
+      });
+      ["dragleave", "drop"].forEach(evt => {
+        vaultLoadDrop.addEventListener(evt, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (evt === "dragleave" && e.target !== vaultLoadDrop) return;
+          vaultLoadDrop.classList.remove("drag-over");
+        });
+      });
+      vaultLoadDrop.addEventListener("drop", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        vaultLoadDrop.classList.remove("drag-over");
+        const dtFiles = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+        if (!dtFiles.length) return;
+        const file = dtFiles[0];
+        const vf = document.getElementById("vaultFileInput");
+        if (vf) {
+          try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            vf.files = dt.files;
+          } catch (err) {
+            console.warn("Could not set vaultFileInput via DataTransfer", err);
+          }
+        }
+        // Immediately attempt to load the dropped vault file (requires passphrase input).
+        try {
+          if (typeof vaultLoadFromFile === "function") {
+            vaultLoadFromFile(file);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+
+    // Vault: drag & drop to import JSON as a new entry
+    const vaultImportDrop = document.getElementById("vaultImportDrop");
+    if (vaultImportDrop) {
+      ["dragenter", "dragover"].forEach(evt => {
+        vaultImportDrop.addEventListener(evt, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          vaultImportDrop.classList.add("drag-over");
+        });
+      });
+      ["dragleave", "drop"].forEach(evt => {
+        vaultImportDrop.addEventListener(evt, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (evt === "dragleave" && e.target !== vaultImportDrop) return;
+          vaultImportDrop.classList.remove("drag-over");
+        });
+      });
+      vaultImportDrop.addEventListener("drop", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        vaultImportDrop.classList.remove("drag-over");
+        const dtFiles = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+        if (!dtFiles.length) return;
+        const file = dtFiles[0];
+        const jsonInput = document.getElementById("vaultJsonFile");
+        if (jsonInput) {
+          try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            jsonInput.files = dt.files;
+          } catch (err) {
+            console.warn("Could not set vaultJsonFile via DataTransfer", err);
+          }
+        }
+        try {
+          if (typeof vaultImportJson === "function") {
+            vaultImportJson();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+  });
+
+  if (nukeBtn) {
+    nukeBtn.addEventListener("click", () => {
+      // Lock side
+      lockSelectedFiles = [];
+      lockFilesInput.value = "";
+      renderLockList();
+      lockStatus.textContent = "";
+      lockStatus.className = "status";
+      lockTotal.textContent = "";
+      scrubNamesInput.checked = false;
+
+      lockPassInput.value = "";
+      lockPassInput.type = "password";
+      toggleLockPassBtn.textContent = "Show";
+      lockPassStrength.textContent = "";
+      lockPassStrength.className = "status";
+
+      // Vault preview
+      lastVaultJson = "";
+      vaultJsonOutput.value = "";
+      vaultHashDiv.textContent = "";
+      vaultExtra.style.display = "none";
+
+      // Unlock side
+      unlockVaultInput.value = "";
+      unlockPassInput.value = "";
+      unlockPassInput.type = "password";
+      toggleUnlockPassBtn.textContent = "Show";
+      unlockStatus.textContent = "";
+      unlockStatus.className = "status";
+      unlockList.innerHTML = "";
+      unlockList.style.display = "none";
+
+      unlockedFiles = [];
+      downloadAllIndex = 0;
+      if (downloadAllBtn) {
+        downloadAllBtn.style.display = "none";
+        downloadAllBtn.textContent = "Download all files";
+      }
+    });
+  }
+
+  unlockBtn.addEventListener("click", async () => {
+    unlockStatus.textContent = "";
+    unlockStatus.className = "status";
+    unlockList.style.display = "none";
+    unlockList.innerHTML = "";
+    if (downloadAllBtn) {
+      downloadAllBtn.style.display = "none";
+      downloadAllBtn.textContent = "Download all files";
+    }
+    unlockedFiles = [];
+    downloadAllIndex = 0;
+
+    const files = unlockVaultInput.files;
+    const pass  = unlockPassInput.value || "";
+
+    if (!files || !files.length) {
+      unlockStatus.textContent = "Please choose a vault JSON file.";
+      unlockStatus.classList.add("error");
+      return;
+    }
+    if (!pass) {
+      unlockStatus.textContent = "Please enter the vault passphrase.";
+      unlockStatus.classList.add("error");
+      return;
+    }
+
+    try {
+      unlockStatus.textContent = "Reading vault file…";
+      const text = await files[0].text();
+      const env = JSON.parse(text);
+
+      unlockStatus.textContent = "Decrypting vault…";
+      const plain = await decryptEnvelopeToText(env, pass);
+      const inner = JSON.parse(plain);
+
+      if (!inner.files || !Array.isArray(inner.files)) {
+        throw new Error("Vault payload missing files[]");
+      }
+
+      unlockedFiles = inner.files;
+      downloadAllIndex = 0;
+
+      // Report how many files were unlocked and echo the original recorded count if present.
+      unlockStatus.textContent = "Vault unlocked. " + inner.files.length + " file(s) available.";
+      if (typeof inner.count === "number") {
+        unlockStatus.textContent += " (Original count recorded: " + inner.count + ")";
+      }
+      unlockStatus.classList.add("ok");
+
+      unlockList.style.display = "block";
+      if (downloadAllBtn && unlockedFiles.length) {
+        downloadAllBtn.style.display = "inline-block";
+        downloadAllBtn.textContent =
+          "Download all files (next: 1 of " + unlockedFiles.length + ")";
+      }
+
+      inner.files.forEach((e, idx) => {
+        const row = document.createElement("div");
+        row.className = "file-row";
+
+        const left = document.createElement("div");
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "file-name";
+        nameDiv.textContent = e.n || ("file-" + (idx + 1));
+        const meta = document.createElement("div");
+        meta.className = "file-meta";
+        const size = e.s != null ? fmtSize(e.s) : "unknown size";
+        meta.textContent = (e.m || "application/octet-stream") + " · " + size;
+        left.appendChild(nameDiv);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        right.className = "file-actions";
+        const btn = document.createElement("button");
+        btn.textContent = "Download";
+        btn.addEventListener("click", () => {
+          try {
+            const buf = base64ToBuf(e.b);
+            const blob = new Blob([buf], { type: e.m || "application/octet-stream" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = e.n || ("file-" + (idx + 1));
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 500);
+          } catch (err2) {
+            console.error(err2);
+            alert("Error downloading this file: " + (err2.message || err2));
+          }
+        });
+        right.appendChild(btn);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        unlockList.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error(err);
+      unlockStatus.textContent = "Error while unlocking vault: " + (err.message || err);
+      unlockStatus.classList.add("error");
+    }
+  });
+</script>
+</body>
+</html>

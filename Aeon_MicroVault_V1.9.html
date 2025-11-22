@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aeon MicroVault v1.7 – File Vault Lite (Drag & Drop)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #050510;
+      color: #f5f5ff;
+      margin: 0;
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+    }
+    h2 {
+      font-size: 1rem;
+      margin: 0.6rem 0 0.3rem;
+    }
+    .section {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 0.6rem 0.7rem;
+      margin-top: 0.6rem;
+      background: #0b0b18;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+      margin-bottom: 0.15rem;
+    }
+    input[type="file"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.3rem 0.4rem;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      border: 1px solid #666;
+      background: #050515;
+      color: #f5f5ff;
+    }
+    button {
+      margin-top: 0.4rem;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.85rem;
+      border-radius: 999px;
+      border: 1px solid #88c;
+      background: #111127;
+      color: #f5f5ff;
+      cursor: pointer;
+    }
+    button.primary {
+      background: #6cf3ff;
+      color: #050510;
+      border-color: #6cf3ff;
+    }
+    .status {
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+      min-height: 1em;
+      color: #a0a4c0;
+    }
+    .status.ok {
+      color: #5df2a8;
+    }
+    .status.error {
+      color: #ff5577;
+    }
+    .file-list {
+      margin-top: 0.4rem;
+      padding: 0.3rem 0.4rem;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #050515;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+    }
+    .file-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.15rem 0;
+      border-bottom: 1px solid #222;
+    }
+    .file-row:last-child {
+      border-bottom: none;
+    }
+    .file-name {
+      max-width: 60%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-meta {
+      font-size: 0.75rem;
+      color: #a0a4c0;
+    }
+    .file-actions button {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+    }
+    .note {
+      font-size: 0.8rem;
+      color: #a0a4c0;
+      margin-top: 0.3rem;
+    }
+    .drop-zone {
+      margin-top: 0.4rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px dashed #666;
+      background: #050515;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #a0a4c0;
+    }
+    .drop-zone.dragover {
+      border-color: #6cf3ff;
+      background: #0b0b26;
+      color: #f5f5ff;
+    }
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.3rem 0.4rem;
+      font-size: 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #050515;
+      color: #f5f5ff;
+      resize: vertical;
+    }
+    .pass-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      margin-top: 0.2rem;
+    }
+    .pass-row input[type="password"],
+    .pass-row input[type="text"] {
+      flex: 1 1 auto;
+      margin-top: 0;
+    }
+    .pass-toggle {
+      flex: 0 0 auto;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      border: 1px solid #666;
+      background: #050515;
+      color: #f5f5ff;
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aeon MicroVault v1.7 – File Vault Lite</h1>
+  <p class="note">
+    Standalone vault for small, high-value file bundles on air-gapped or low-trust systems. No storage, no network:
+    all data lives only in this tab’s memory until you download a vault or close the tab.
+  </p>
+
+  <div class="section">
+    <h2>1. Lock files into a vault</h2>
+    <label for="lock-files">Select one or more files</label>
+    <input id="lock-files" type="file" multiple>
+
+    <div id="lock-drop" class="drop-zone">
+      Drag &amp; drop files here to add them to this vault,<br>
+      or use the file picker above.
+    </div>
+
+    <label>
+      <input type="checkbox" id="scrub-names">
+      Scrub filenames inside the vault (store as generic names like <code>file-1.jpg</code>)
+    </label>
+
+    <label for="lock-pass">Vault passphrase</label>
+    <div class="pass-row">
+      <input id="lock-pass" type="password" placeholder="Choose a strong passphrase">
+      <button id="toggle-lock-pass" type="button" class="pass-toggle">Show</button>
+    </div>
+    <div id="lock-pass-strength" class="status"></div>
+
+    <button id="btn-lock" class="primary">Lock files &amp; download vault JSON</button>
+    <button id="btn-clear" type="button">Clear selected files</button>
+
+    <div id="lock-status" class="status"></div>
+    <div id="lock-list" class="file-list" style="display:none;"></div>
+    <div id="lock-total" class="note"></div>
+
+    <div id="vault-extra" style="display:none; margin-top:0.5rem;">
+      <div id="vault-hash" class="note"></div>
+      <label for="vault-json-output">Vault JSON (preview, safe to copy)</label>
+      <textarea id="vault-json-output" rows="4" readonly></textarea>
+      <button id="btn-copy-json" type="button">Copy full vault JSON</button>
+      <button id="btn-clear-json" type="button">Clear preview</button>
+      <div class="note">
+        Preview may be truncated for very large vaults; the Copy button always uses the full JSON envelope.
+      </div>
+    </div>
+
+    <p class="note">
+      This creates one <code>.enc.json</code> vault file containing all selected files, encrypted with your passphrase.
+      This lite tool is optimized for vaults up to about 25&nbsp;MB total. For larger sets, split into multiple vaults.
+      There is no recovery if the passphrase is lost.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>2. Unlock a vault &amp; download files</h2>
+    <label for="unlock-vault">Vault JSON file (.enc.json)</label>
+    <input id="unlock-vault" type="file" accept="application/json">
+
+    <label for="unlock-pass">Vault passphrase</label>
+    <div class="pass-row">
+      <input id="unlock-pass" type="password" placeholder="Enter the same passphrase">
+      <button id="toggle-unlock-pass" type="button" class="pass-toggle">Show</button>
+    </div>
+
+    <button id="btn-unlock" class="primary">Unlock vault</button>
+    <div id="unlock-status" class="status"></div>
+    <button id="btn-download-all" type="button" style="display:none;">Download all files</button>
+    <div id="unlock-list" class="file-list" style="display:none;"></div>
+    <p class="note">
+      After unlocking, you’ll see a list of files. Use the Download button next to each one to restore the original file
+      (it will land in your browser’s Downloads folder). For sensitive work, close this tab after use and manage Downloads as needed.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>3. Nuke this session</h2>
+    <button id="btn-nuke" type="button">Nuke: clear all fields</button>
+    <p class="note">
+      This clears all selected files, passphrases, on-screen vault previews, and unlocked file lists from this tab.
+      It does not delete any files already saved to your disk.
+    </p>
+  </div>
+
+<script>
+  const enc = new TextEncoder();
+  const dec = new TextDecoder();
+
+  function bufToBase64(buf) {
+    const bytes = buf instanceof ArrayBuffer ? new Uint8Array(buf) : new Uint8Array(buf.buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  function base64ToBuf(base64) {
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  async function deriveAesKey(passphrase, salt, iterations) {
+    const baseKey = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(passphrase),
+      { name: "PBKDF2" },
+      false,
+      ["deriveKey"]
+    );
+    return crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        hash: "SHA-256",
+        salt,
+        iterations
+      },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function encryptTextToEnvelope(plainText, passphrase) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv   = crypto.getRandomValues(new Uint8Array(12));
+    const iterations = 300000;
+
+    const key = await deriveAesKey(passphrase, salt, iterations);
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      key,
+      enc.encode(plainText)
+    );
+
+    return {
+      v: 1,
+      t: "aeon-file-vault",
+      cipher: "AES-256-GCM",
+      kdf: {
+        name: "PBKDF2",
+        hash: "SHA-256",
+        it: iterations,
+        salt: bufToBase64(salt)
+      },
+      iv: bufToBase64(iv),
+      ct: bufToBase64(ciphertext)
+    };
+  }
+
+  async function decryptEnvelopeToText(env, passphrase) {
+    if (!env || env.t !== "aeon-file-vault") {
+      throw new Error("Not an Aeon file-vault envelope");
+    }
+    const salt = new Uint8Array(base64ToBuf(env.kdf.salt));
+    const iv   = new Uint8Array(base64ToBuf(env.iv));
+    const key  = await deriveAesKey(passphrase, salt, env.kdf.it);
+    const ct   = base64ToBuf(env.ct);
+    const plainBuf = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv },
+      key,
+      ct
+    );
+    return dec.decode(plainBuf);
+  }
+
+  async function sha256Hex(str) {
+    const buf = await crypto.subtle.digest("SHA-256", enc.encode(str));
+    const bytes = new Uint8Array(buf);
+    let hex = "";
+    for (let i = 0; i < bytes.length; i++) {
+      hex += bytes[i].toString(16).padStart(2, "0");
+    }
+    return hex;
+  }
+
+  function fmtSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    const kb = bytes / 1024;
+    if (kb < 1024) return kb.toFixed(1) + " KB";
+    const mb = kb / 1024;
+    return mb.toFixed(2) + " MB";
+  }
+
+  function makeScrubbedName(original, index) {
+    const dot = original.lastIndexOf(".");
+    let ext = "";
+    if (dot > 0 && dot < original.length - 1) {
+      ext = original.slice(dot);
+    }
+    return "file-" + (index + 1) + ext;
+  }
+
+  function assessPassphraseScore(p) {
+    if (!p) return 0;
+    let score = 0;
+    if (p.length >= 8) score++;
+    if (p.length >= 12) score++;
+    const hasLower = /[a-z]/.test(p);
+    const hasUpper = /[A-Z]/.test(p);
+    const hasDigit = /\d/.test(p);
+    const hasSymbol = /[^A-Za-z0-9]/.test(p);
+    const variety = (hasLower + hasUpper + hasDigit + hasSymbol);
+    if (variety >= 2) score++;
+    if (variety >= 3) score++;
+    return score;
+  }
+
+  const lockFilesInput   = document.getElementById("lock-files");
+  const lockDropZone     = document.getElementById("lock-drop");
+  const lockPassInput    = document.getElementById("lock-pass");
+  const lockPassStrength = document.getElementById("lock-pass-strength");
+  const scrubNamesInput  = document.getElementById("scrub-names");
+  const lockBtn          = document.getElementById("btn-lock");
+  const clearBtn         = document.getElementById("btn-clear");
+  const lockStatus       = document.getElementById("lock-status");
+  const lockList         = document.getElementById("lock-list");
+  const lockTotal        = document.getElementById("lock-total");
+
+  const vaultExtra       = document.getElementById("vault-extra");
+  const vaultHashDiv     = document.getElementById("vault-hash");
+  const vaultJsonOutput  = document.getElementById("vault-json-output");
+  const copyJsonBtn      = document.getElementById("btn-copy-json");
+  const clearJsonBtn     = document.getElementById("btn-clear-json");
+
+  const unlockVaultInput = document.getElementById("unlock-vault");
+  const unlockPassInput  = document.getElementById("unlock-pass");
+  const unlockBtn        = document.getElementById("btn-unlock");
+  const unlockStatus     = document.getElementById("unlock-status");
+  const unlockList       = document.getElementById("unlock-list");
+  const downloadAllBtn   = document.getElementById("btn-download-all");
+
+  const toggleLockPassBtn   = document.getElementById("toggle-lock-pass");
+  const toggleUnlockPassBtn = document.getElementById("toggle-unlock-pass");
+
+  const nukeBtn             = document.getElementById("btn-nuke");
+
+  let lockSelectedFiles = [];
+  let lastVaultJson = "";
+  let unlockedFiles = [];
+  let downloadAllIndex = 0;
+
+  function renderLockList() {
+    lockList.innerHTML = "";
+    if (!lockSelectedFiles.length) {
+      lockList.style.display = "none";
+      lockTotal.textContent = "";
+      return;
+    }
+    lockList.style.display = "block";
+    let totalBytes = 0;
+    lockSelectedFiles.forEach(f => {
+      totalBytes += f.size;
+      const row = document.createElement("div");
+      row.className = "file-row";
+
+      const left = document.createElement("div");
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "file-name";
+      nameDiv.textContent = f.name;
+      const meta = document.createElement("div");
+      meta.className = "file-meta";
+      meta.textContent = (f.type || "application/octet-stream") + " · " + fmtSize(f.size);
+      left.appendChild(nameDiv);
+      left.appendChild(meta);
+
+      row.appendChild(left);
+      lockList.appendChild(row);
+    });
+    lockTotal.textContent = "Total size: " + fmtSize(totalBytes) + " (limit: 25 MB)";
+  }
+
+  // When the user picks files via the file picker, append them to the existing
+  // selection instead of replacing it. This allows multiple batches of files to
+  // be added sequentially. Duplicate files (same name, size and lastModified)
+  // are ignored to prevent accidental repetition.
+  lockFilesInput.addEventListener("change", () => {
+    const newFiles = Array.from(lockFilesInput.files || []);
+    newFiles.forEach(f => {
+      if (!lockSelectedFiles.some(existing =>
+        existing.name === f.name &&
+        existing.size === f.size &&
+        existing.lastModified === f.lastModified
+      )) {
+        lockSelectedFiles.push(f);
+      }
+    });
+    renderLockList();
+    // Reset the file input so selecting the same file again triggers another change event.
+    lockFilesInput.value = "";
+  });
+
+  ["dragenter","dragover"].forEach(evt => {
+    lockDropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      lockDropZone.classList.add("dragover");
+    });
+  });
+
+  ["dragleave","drop"].forEach(evt => {
+    lockDropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (evt === "dragleave" && e.target !== lockDropZone) return;
+      lockDropZone.classList.remove("dragover");
+    });
+  });
+
+  lockDropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    lockDropZone.classList.remove("dragover");
+    const dtFiles = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+    if (!dtFiles.length) return;
+    lockSelectedFiles = lockSelectedFiles.concat(dtFiles);
+    renderLockList();
+    lockFilesInput.value = "";
+  });
+
+  clearBtn.addEventListener("click", () => {
+    lockSelectedFiles = [];
+    lockFilesInput.value = "";
+    renderLockList();
+    lockStatus.textContent = "File list cleared.";
+    lockStatus.className = "status ok";
+  });
+
+  lockPassInput.addEventListener("input", () => {
+    const p = lockPassInput.value || "";
+    const score = assessPassphraseScore(p);
+    lockPassStrength.className = "status";
+    if (!p) {
+      lockPassStrength.textContent = "";
+      return;
+    }
+    if (score <= 1) {
+      lockPassStrength.textContent =
+        "Passphrase looks weak. Consider 12+ characters and mixing words, numbers, and symbols.";
+      lockPassStrength.classList.add("error");
+    } else if (score <= 3) {
+      lockPassStrength.textContent =
+        "Passphrase looks okay for many uses. For very sensitive data, prefer a longer passphrase.";
+      lockPassStrength.classList.add("ok");
+    } else {
+      lockPassStrength.textContent =
+        "Passphrase looks strong. Remember there is no recovery if you forget it.";
+      lockPassStrength.classList.add("ok");
+    }
+  });
+
+  function togglePassVisibility(inputEl, btnEl) {
+    if (!inputEl || !btnEl) return;
+    if (inputEl.type === "password") {
+      inputEl.type = "text";
+      btnEl.textContent = "Hide";
+    } else {
+      inputEl.type = "password";
+      btnEl.textContent = "Show";
+    }
+  }
+
+  toggleLockPassBtn.addEventListener("click", () => {
+    togglePassVisibility(lockPassInput, toggleLockPassBtn);
+  });
+
+  toggleUnlockPassBtn.addEventListener("click", () => {
+    togglePassVisibility(unlockPassInput, toggleUnlockPassBtn);
+  });
+
+  copyJsonBtn.addEventListener("click", () => {
+    if (!lastVaultJson) {
+      alert("No vault has been created in this session yet.");
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastVaultJson).then(() => {
+        alert("Full vault JSON copied to clipboard.");
+      }).catch(err => {
+        console.error(err);
+        alert("Clipboard write failed. You can select and copy from the preview textarea instead.");
+      });
+    } else {
+      alert("Clipboard API not available in this environment. You can select and copy from the preview textarea.");
+    }
+  });
+
+  clearJsonBtn.addEventListener("click", () => {
+    vaultJsonOutput.value = "";
+    vaultExtra.style.display = "none";
+  });
+
+  lockBtn.addEventListener("click", async () => {
+    lockStatus.textContent = "";
+    lockStatus.className = "status";
+    vaultExtra.style.display = "none";
+    vaultJsonOutput.value = "";
+    vaultHashDiv.textContent = "";
+    lastVaultJson = "";
+
+    const files = lockSelectedFiles;
+    const pass  = lockPassInput.value || "";
+    const scrub = scrubNamesInput.checked;
+
+    if (!files || !files.length) {
+      lockStatus.textContent = "Please choose or drop at least one file.";
+      lockStatus.classList.add("error");
+      return;
+    }
+    if (!pass) {
+      lockStatus.textContent = "Please enter a vault passphrase.";
+      lockStatus.classList.add("error");
+      return;
+    }
+
+    try {
+      let totalBytes = 0;
+      for (let i = 0; i < files.length; i++) {
+        totalBytes += files[i].size;
+      }
+      const maxBytes = 25 * 1024 * 1024;
+      if (totalBytes > maxBytes) {
+        lockStatus.textContent =
+          "Total file size (" + fmtSize(totalBytes) + ") is too large for this lite prototype. " +
+          "This tool is optimized for vaults up to about 25 MB. Try fewer or smaller files.";
+        lockStatus.classList.add("error");
+        return;
+      }
+
+      // Show how many files and how much data will be processed before reading.
+      lockStatus.textContent =
+        "Locking vault with " + files.length + " file(s), total " + fmtSize(totalBytes) + ".";
+      const entries = [];
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const buf = await f.arrayBuffer();
+        const name = scrub ? makeScrubbedName(f.name, i) : f.name;
+        entries.push({
+          n: name,
+          s: f.size,
+          m: f.type || "application/octet-stream",
+          b: bufToBase64(buf)
+        });
+      }
+
+      const inner = {
+        v: 1,
+        created: new Date().toISOString(),
+        count: entries.length,
+        files: entries
+      };
+
+      lockStatus.textContent = "Encrypting vault…";
+      const env = await encryptTextToEnvelope(JSON.stringify(inner), pass);
+
+      const json = JSON.stringify(env);
+      lastVaultJson = json;
+
+      const hashHex = await sha256Hex(json);
+      vaultHashDiv.textContent = "Vault SHA-256: " + hashHex;
+      const previewLimit = 5000;
+      vaultJsonOutput.value = json.length > previewLimit
+        ? json.slice(0, previewLimit) + "\n[... truncated preview ...]"
+        : json;
+      vaultExtra.style.display = "block";
+
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const now = new Date();
+      const name = "file-vault-" +
+        now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0") + "-" +
+        String(now.getHours()).padStart(2, "0") +
+        String(now.getMinutes()).padStart(2, "0") +
+        ".enc.json";
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 500);
+
+      // Summarize how many files were sealed in the vault and the filename.
+      lockStatus.textContent =
+        "Vault locked (" + inner.files.length + " file(s)). Downloaded as \"" + name + "\".";
+      lockStatus.classList.add("ok");
+
+    } catch (err) {
+      console.error(err);
+      lockStatus.textContent = "Error while locking vault: " + (err.message || err);
+      lockStatus.classList.add("error");
+    }
+  });
+
+  if (downloadAllBtn) {
+    downloadAllBtn.style.display = "none";
+    downloadAllBtn.addEventListener("click", () => {
+      if (!unlockedFiles || !unlockedFiles.length) {
+        alert("No unlocked files are available to download.");
+        return;
+      }
+      if (downloadAllIndex >= unlockedFiles.length) {
+        alert("All files from this vault have already been downloaded in this session.");
+        return;
+      }
+      const e = unlockedFiles[downloadAllIndex];
+      try {
+        const buf = base64ToBuf(e.b);
+        const blob = new Blob([buf], { type: e.m || "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = e.n || ("file-" + (downloadAllIndex + 1));
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 500);
+      } catch (err2) {
+        console.error(err2);
+        alert("Error downloading one of the files: " + (err2.message || err2));
+        return;
+      }
+      downloadAllIndex++;
+      if (downloadAllIndex < unlockedFiles.length) {
+        downloadAllBtn.textContent =
+          "Download all files (next: " + (downloadAllIndex + 1) + " of " + unlockedFiles.length + ")";
+      } else {
+        downloadAllBtn.textContent = "Download all files (done)";
+      }
+    });
+  }
+
+  if (nukeBtn) {
+    nukeBtn.addEventListener("click", () => {
+      // Lock side
+      lockSelectedFiles = [];
+      lockFilesInput.value = "";
+      renderLockList();
+      lockStatus.textContent = "";
+      lockStatus.className = "status";
+      lockTotal.textContent = "";
+      scrubNamesInput.checked = false;
+
+      lockPassInput.value = "";
+      lockPassInput.type = "password";
+      toggleLockPassBtn.textContent = "Show";
+      lockPassStrength.textContent = "";
+      lockPassStrength.className = "status";
+
+      // Vault preview
+      lastVaultJson = "";
+      vaultJsonOutput.value = "";
+      vaultHashDiv.textContent = "";
+      vaultExtra.style.display = "none";
+
+      // Unlock side
+      unlockVaultInput.value = "";
+      unlockPassInput.value = "";
+      unlockPassInput.type = "password";
+      toggleUnlockPassBtn.textContent = "Show";
+      unlockStatus.textContent = "";
+      unlockStatus.className = "status";
+      unlockList.innerHTML = "";
+      unlockList.style.display = "none";
+
+      unlockedFiles = [];
+      downloadAllIndex = 0;
+      if (downloadAllBtn) {
+        downloadAllBtn.style.display = "none";
+        downloadAllBtn.textContent = "Download all files";
+      }
+    });
+  }
+
+  unlockBtn.addEventListener("click", async () => {
+    unlockStatus.textContent = "";
+    unlockStatus.className = "status";
+    unlockList.style.display = "none";
+    unlockList.innerHTML = "";
+    if (downloadAllBtn) {
+      downloadAllBtn.style.display = "none";
+      downloadAllBtn.textContent = "Download all files";
+    }
+    unlockedFiles = [];
+    downloadAllIndex = 0;
+
+    const files = unlockVaultInput.files;
+    const pass  = unlockPassInput.value || "";
+
+    if (!files || !files.length) {
+      unlockStatus.textContent = "Please choose a vault JSON file.";
+      unlockStatus.classList.add("error");
+      return;
+    }
+    if (!pass) {
+      unlockStatus.textContent = "Please enter the vault passphrase.";
+      unlockStatus.classList.add("error");
+      return;
+    }
+
+    try {
+      unlockStatus.textContent = "Reading vault file…";
+      const text = await files[0].text();
+      const env = JSON.parse(text);
+
+      unlockStatus.textContent = "Decrypting vault…";
+      const plain = await decryptEnvelopeToText(env, pass);
+      const inner = JSON.parse(plain);
+
+      if (!inner.files || !Array.isArray(inner.files)) {
+        throw new Error("Vault payload missing files[]");
+      }
+
+      unlockedFiles = inner.files;
+      downloadAllIndex = 0;
+
+      // Indicate how many files are available after unlocking. If the original vault recorded
+      // a file count, echo it so discrepancies can be spotted easily.
+      unlockStatus.textContent = "Vault unlocked. " + inner.files.length + " file(s) available.";
+      if (typeof inner.count === "number") {
+        unlockStatus.textContent += " (Original count recorded: " + inner.count + ")";
+      }
+      unlockStatus.classList.add("ok");
+
+      unlockList.style.display = "block";
+      if (downloadAllBtn && unlockedFiles.length) {
+        downloadAllBtn.style.display = "inline-block";
+        downloadAllBtn.textContent =
+          "Download all files (next: 1 of " + unlockedFiles.length + ")";
+      }
+
+      inner.files.forEach((e, idx) => {
+        const row = document.createElement("div");
+        row.className = "file-row";
+
+        const left = document.createElement("div");
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "file-name";
+        nameDiv.textContent = e.n || ("file-" + (idx + 1));
+        const meta = document.createElement("div");
+        meta.className = "file-meta";
+        const size = e.s != null ? fmtSize(e.s) : "unknown size";
+        meta.textContent = (e.m || "application/octet-stream") + " · " + size;
+        left.appendChild(nameDiv);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+        right.className = "file-actions";
+        const btn = document.createElement("button");
+        btn.textContent = "Download";
+        btn.addEventListener("click", () => {
+          try {
+            const buf = base64ToBuf(e.b);
+            const blob = new Blob([buf], { type: e.m || "application/octet-stream" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = e.n || ("file-" + (idx + 1));
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 500);
+          } catch (err2) {
+            console.error(err2);
+            alert("Error downloading this file: " + (err2.message || err2));
+          }
+        });
+        right.appendChild(btn);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        unlockList.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error(err);
+      unlockStatus.textContent = "Error while unlocking vault: " + (err.message || err);
+      unlockStatus.classList.add("error");
+    }
+  });
+</script>
+</body>
+</html>
