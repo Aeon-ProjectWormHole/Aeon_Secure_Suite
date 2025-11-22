@@ -33,3 +33,9 @@ Aeon_MicroVault_v1.9.html
 3. Disconnect from the internet (or go fully offline if you want).
 4. Open the HTML file(s) in a modern browser (File → Open, or drag into a browser window).
 5. Follow the on-page instructions to lock/unlock messages, files, or vaults.
+
+## Authorship & AI collaboration
+
+Aeon Secure Suite and MicroVault were conceived and created by **Steven Politowicz**.
+
+Much of the implementation and wording was co-developed with the help of a large language model (LLM) assistant. All cryptography uses standard browser APIs (Web Crypto), and the code is shipped as a single, auditable HTML file so that anyone can inspect, verify, or fork it.
