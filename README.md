@@ -52,6 +52,10 @@ Much of the implementation and wording was co-developed with the help of a large
 
 ## Safety & limitations
 
+### Important note (v4.4 status)
+
+v4.4 is a best-effort, non-expert implementation built with AI assistance and has **not** been professionally audited. Community reviewers have already raised concerns about potential cryptographic and architectural issues. Please do **not** rely on this version to protect life-or-death or highly sensitive data. Treat it as an educational / experimental tool unless and until it has undergone expert review.
+
 - If you lose your passphrase, vault, or the HTML file, your encrypted data cannot be recovered.
 - These tools do **not** protect you from malware, keyloggers, or a compromised operating system or browser.
 - Going offline (air-gapped) helps, but it does not fix an already infected or monitored device.
