@@ -10,6 +10,16 @@ Aeon_Secure_Suite_v4.4.html
 Aeon_MicroVault_v1.9.html  
 `798e6858b8847a87fb908e36331b3c83ed04d60803af0906c6c81b4d31c18427`
 
+## Why This Exists
+
+I'm not a developer. I'm a person who believes technology should serve humanity, not extract from it.
+
+I built this with AI assistance because privacy tools shouldn't require a computer science degree. They should be accessible to anyone who needs them.
+
+This is part of Project Aeon—an initiative to rebuild trust between humans and technology through transparency, sovereignty, and compassion.
+
+If this helps even one person protect something that matters to them, it was worth building.
+
 ## What this is
 
 - A pair of single-file tools you download and run locally in your browser.
