@@ -9,3 +9,17 @@ Aeon_Secure_Suite_v4.4.html
 
 Aeon_MicroVault_v1.9.html  
 `798e6858b8847a87fb908e36331b3c83ed04d60803af0906c6c81b4d31c18427`
+
+## What this is
+
+- A pair of single-file tools you download and run locally in your browser.
+- Aeon v4.4: encrypts messages, files, and simple vault entries fully offline.
+- MicroVault v1.9: a small, air-gapped-friendly file vault for bundling files into one encrypted JSON.
+- Uses standard Web Crypto (AES-256-GCM + PBKDF2-HMAC-SHA-256) with a human-readable threat model.
+
+## What this isn’t
+
+- Not a cloud service: if you lose the HTML file, the vault, or your passphrase, your data is gone.
+- Not protection against malware, keyloggers, or a compromised operating system/browser.
+- Not a magic invisibility cloak against powerful, well-resourced attackers.
+- Not a substitute for good operational security (strong passphrases, safe devices, and safe habits).
