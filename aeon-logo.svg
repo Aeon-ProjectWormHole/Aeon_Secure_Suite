@@ -1,0 +1,24 @@
+<svg viewBox="0 0 64 64" aria-hidden="true">
+  <!-- Outer orbit ring -->
+  <circle
+    cx="32"
+    cy="32"
+    r="23"
+    style="fill:none;stroke:#6ee7ff;stroke-width:2;opacity:0.9;"
+  />
+  <!-- Inner core -->
+  <circle
+    cx="32"
+    cy="32"
+    r="11"
+    style="fill:#22d3ee;opacity:0.9;"
+  />
+  <!-- Arc / path suggesting a wormhole / timeline -->
+  <path
+    d="M16 36
+       Q32 18 48 28
+       Q40 40 24 44
+       Z"
+    style="fill:rgba(56,189,248,0.12);"
+  />
+</svg>
