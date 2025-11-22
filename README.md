@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="aeon-logo.svg" alt="Aeon Secure Suite logo" width="96" />
+  <img src="aeon-logo.svg?raw=1" alt="Aeon Secure Suite logo" width="96" />
 </p>
 
 # Aeon Secure Suite
