@@ -23,3 +23,13 @@ Aeon_MicroVault_v1.9.html
 - Not protection against malware, keyloggers, or a compromised operating system/browser.
 - Not a magic invisibility cloak against powerful, well-resourced attackers.
 - Not a substitute for good operational security (strong passphrases, safe devices, and safe habits).
+
+## Quick start
+
+1. Go to the [Releases](./releases) page on this repo and download:
+   - `Aeon_Secure_Suite_v4.4.html`
+   - `Aeon_MicroVault_v1.9.html`
+2. (Optional but recommended) Verify the SHA-256 hashes match the values in the **Verification** section above.
+3. Disconnect from the internet (or go fully offline if you want).
+4. Open the HTML file(s) in a modern browser (File → Open, or drag into a browser window).
+5. Follow the on-page instructions to lock/unlock messages, files, or vaults.
